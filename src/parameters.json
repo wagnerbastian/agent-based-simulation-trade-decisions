@@ -1,0 +1,19 @@
+{
+    "agents": 1000,
+    "runs": 50,
+    "decisionStrategy" : {
+        "type": "original",
+        "distribution": [
+            0.25,
+            0.5,
+            0.75,
+            1
+        ]
+    },
+    "payoff": {
+        "r": 39,
+        "temp": 40,
+        "s": 20,
+        "x": 10
+    }
+}
