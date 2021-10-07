@@ -1,6 +1,7 @@
 {
     "agents": 1000,
     "runs": 50,
+    "repititions": 25,
     "decisionStrategy" : {
         "type": "original",
         "distribution": [
