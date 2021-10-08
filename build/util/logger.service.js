@@ -21,6 +21,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logger = void 0;
 var fs = require("fs");
+var fsPath = require('fs-path');
 var data = __importStar(require("../parameters.json"));
 var Logger = /** @class */ (function () {
     function Logger() {
@@ -38,7 +39,8 @@ var Logger = /** @class */ (function () {
             strategy: data.decisionStrategy.type,
             results: simulationResults
         };
-        fs.writeFileSync("results.json", JSON.stringify(text), function () { });
+        this.writeFile("results.json", JSON.stringify(text));
+        this.writeFile("./logs/results-" + start.split(':').join('-') + ".json", JSON.stringify(text));
     };
     Logger.prototype.logRun = function (start, end, results) {
         var parameters = (data.default);
@@ -53,7 +55,17 @@ var Logger = /** @class */ (function () {
             strategy: data.decisionStrategy.type,
             results: results
         };
-        fs.writeFileSync("run.json", JSON.stringify(text), function () { });
+        this.writeFile("run.json", JSON.stringify(text));
+        this.writeFile("./logs/run-" + start.split(':').join('-') + ".json", JSON.stringify(text));
+    };
+    Logger.prototype.writeFile = function (path, content) {
+        fsPath.writeFile(path, content, function (err) {
+            if (err) {
+                console.error("error in writing file");
+            }
+            else {
+            }
+        });
     };
     return Logger;
 }());

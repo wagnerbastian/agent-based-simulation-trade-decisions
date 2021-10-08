@@ -1,7 +1,13 @@
 const fs = require("fs");
+const fsPath = require('fs-path');
 import * as data from '../parameters.json';
 
 export class Logger {
+
+    constructor() {
+       
+
+    }
 
     logHistory(start: string, end: string, simulationResults: any[]): void {
         const parameters = ((data as any).default)
@@ -19,9 +25,8 @@ export class Logger {
             results: simulationResults
         }
 
-        
-        fs.writeFileSync("results.json", JSON.stringify(text), function(){});
-        fs.writeFileSync(`logs/results-${start}.json`, JSON.stringify(text), function(){});
+        this.writeFile("results.json", JSON.stringify(text));
+        this.writeFile(`./logs/results-${start.split(':').join('-')}.json`, JSON.stringify(text));
 
     }
 
@@ -40,9 +45,18 @@ export class Logger {
             strategy: data.decisionStrategy.type,
             results
         }
-
         
-        fs.writeFileSync("run.json", JSON.stringify(text), function(){})
-        fs.writeFileSync(`logs/run-${start}.json`, JSON.stringify(text), function(){});
+        this.writeFile("run.json", JSON.stringify(text));
+        this.writeFile(`./logs/run-${start.split(':').join('-')}.json`, JSON.stringify(text));
+    }
+
+    writeFile(path: string, content: string): void {
+        fsPath.writeFile(path, content, function(err: any){
+            if(err) {
+              console.error("error in writing file");
+              
+            } else {
+            }
+          });
     }
 }

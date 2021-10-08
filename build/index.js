@@ -27,26 +27,28 @@ var logger_service_1 = require("./util/logger.service");
 var analyzer_1 = require("./simulation/analyzer");
 var parameters = (data.default);
 var fs = require("fs");
-var logger = new logger_service_1.Logger();
-var analyzer = new analyzer_1.Analyzer(logger);
-var simService = new simulation_service_1.SimulationService();
-var strategyService = new strategy_service_1.StrategyService();
-var strategies = strategyService.initStrategies();
-var agents = simService.initAgents(data.agents, strategies);
-var simulationResults = [];
-var start = new Date().toISOString();
-// Simulationen, mehrere erstellen um damit zu arbeiten.
-var x = new simulation_1.Simulation(agents, strategyService);
-console.log(simService.countStrategies(x.agents));
-x.runSimulation(data.runs);
-for (var i = 0; i < data.repititions; i++) {
-    var x_1 = new simulation_1.Simulation(agents, strategyService);
-    simulationResults.push({
-        run: i,
-        history: x_1.runSimulation(data.runs)
-    });
+for (var simulationCounter = 0; simulationCounter < parameters.simulations; simulationCounter++) {
+    var logger = new logger_service_1.Logger();
+    var analyzer = new analyzer_1.Analyzer(logger);
+    var simService = new simulation_service_1.SimulationService();
+    var strategyService = new strategy_service_1.StrategyService();
+    var strategies = strategyService.initStrategies();
+    var agents = simService.initAgents(data.agents, strategies);
+    var simulationResults = [];
+    var start = new Date().toISOString();
+    // Simulationen, mehrere erstellen um damit zu arbeiten.
+    var x = new simulation_1.Simulation(agents, strategyService);
+    console.log(simService.countStrategies(x.agents));
+    x.runSimulation(data.runs);
+    for (var i = 0; i < data.repititions; i++) {
+        var x_1 = new simulation_1.Simulation(agents, strategyService);
+        simulationResults.push({
+            run: i,
+            history: x_1.runSimulation(data.runs)
+        });
+    }
+    var result = analyzer.analyzeResults(simulationResults);
+    var end = new Date().toISOString();
+    logger.logHistory(start, end, simulationResults);
+    logger.logRun(start, end, result);
 }
-var result = analyzer.analyzeResults(simulationResults);
-var end = new Date().toISOString();
-logger.logHistory(start, end, simulationResults);
-logger.logRun(start, end, result);

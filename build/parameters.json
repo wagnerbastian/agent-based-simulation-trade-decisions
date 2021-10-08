@@ -1,7 +1,8 @@
 {
     "agents": 1000,
-    "runs": 5000,
+    "runs": 5,
     "repititions": 25,
+    "simulations": 5,
     "decisionStrategy": {
         "type": "original-old",
         "distribution": [
