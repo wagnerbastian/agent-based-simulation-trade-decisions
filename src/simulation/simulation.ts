@@ -73,7 +73,7 @@ export class Simulation {
         return this.strategyHistory;
       }
 
-      countStrategies(agents: Agent[]): any {
+      countStrategies(agents: Agent[]): StrategyDistribution {
         const result = {
           TC: 0,
           UC: 0,
@@ -111,4 +111,11 @@ interface PayoffParameter  {
     temp: number,
     s: number,
     x: number
+}
+
+export interface StrategyDistribution {
+  TC: number;
+  UC: number;
+  TP: number;
+  UP: number;
 }

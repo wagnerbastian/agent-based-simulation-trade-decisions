@@ -2,7 +2,7 @@
     "agents": 1000,
     "runs": 5000,
     "repititions": 25,
-    "decisionStrategy" : {
+    "decisionStrategy": {
         "type": "original-old",
         "distribution": [
             0.25,

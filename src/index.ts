@@ -3,10 +3,12 @@ import { StrategyService } from "./service/strategy.service";
 import { Simulation } from "./simulation/simulation";
 import * as data from './parameters.json';
 import { Logger } from "./util/logger.service";
+import { Analyzer } from "./simulation/analyzer";
 const parameters = ((data as any).default)
 const fs = require("fs");
 
 const logger = new Logger();
+const analyzer = new Analyzer(logger);
 
 const simService = new SimulationService();
 const strategyService = new StrategyService();
@@ -30,5 +32,8 @@ for (let i = 0; i < data.repititions; i++) {
     });
 }
 
+const result = analyzer.analyzeResults(simulationResults);
+
 const end = new Date().toISOString();
 logger.logHistory(start, end, simulationResults)
+logger.logRun(start, end, result)
