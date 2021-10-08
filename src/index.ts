@@ -17,6 +17,8 @@ import {
 const parameters = ((data as any).default)
 const fs = require("fs");
 
+console.log(`--- Starting ${parameters.simulations} Simulations with ${parameters.agents} Agents, ${parameters.runs} Runs, ${parameters.repititions} Repitions ---`);
+
 for (let simulationCounter = 0; simulationCounter < parameters.simulations; simulationCounter++) {
     const logger = new Logger();
     const analyzer = new Analyzer(logger);
@@ -49,3 +51,5 @@ for (let simulationCounter = 0; simulationCounter < parameters.simulations; simu
     logger.logHistory(start, end, simulationResults)
     logger.logRun(start, end, result)
 }
+
+console.log("--- Finished execution of simulation ---")

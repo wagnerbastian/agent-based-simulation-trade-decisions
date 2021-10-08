@@ -27,6 +27,7 @@ var logger_service_1 = require("./util/logger.service");
 var analyzer_1 = require("./simulation/analyzer");
 var parameters = (data.default);
 var fs = require("fs");
+console.log("--- Starting " + parameters.simulations + " Simulations with " + parameters.agents + " Agents, " + parameters.runs + " Runs, " + parameters.repititions + " Repitions ---");
 for (var simulationCounter = 0; simulationCounter < parameters.simulations; simulationCounter++) {
     var logger = new logger_service_1.Logger();
     var analyzer = new analyzer_1.Analyzer(logger);
@@ -52,3 +53,4 @@ for (var simulationCounter = 0; simulationCounter < parameters.simulations; simu
     logger.logHistory(start, end, simulationResults);
     logger.logRun(start, end, result);
 }
+console.log("--- Finished execution of simulation ---");

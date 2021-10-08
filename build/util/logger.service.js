@@ -21,7 +21,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logger = void 0;
 var fs = require("fs");
-var fsPath = require('fs-path');
 var data = __importStar(require("../parameters.json"));
 var Logger = /** @class */ (function () {
     function Logger() {
@@ -39,8 +38,12 @@ var Logger = /** @class */ (function () {
             strategy: data.decisionStrategy.type,
             results: simulationResults
         };
-        this.writeFile("results.json", JSON.stringify(text));
-        this.writeFile("./logs/results-" + start.split(':').join('-') + ".json", JSON.stringify(text));
+        try {
+            fs.mkdirSync('logs');
+        }
+        catch (e) { }
+        fs.writeFile("results.json", JSON.stringify(text), function () { });
+        fs.writeFile("./logs/results-" + start.split(':').join('-') + ".json", JSON.stringify(text), function () { });
     };
     Logger.prototype.logRun = function (start, end, results) {
         var parameters = (data.default);
@@ -55,17 +58,12 @@ var Logger = /** @class */ (function () {
             strategy: data.decisionStrategy.type,
             results: results
         };
-        this.writeFile("run.json", JSON.stringify(text));
-        this.writeFile("./logs/run-" + start.split(':').join('-') + ".json", JSON.stringify(text));
-    };
-    Logger.prototype.writeFile = function (path, content) {
-        fsPath.writeFile(path, content, function (err) {
-            if (err) {
-                console.error("error in writing file");
-            }
-            else {
-            }
-        });
+        try {
+            fs.mkdirSync('logs');
+        }
+        catch (e) { }
+        fs.writeFile("run.json", JSON.stringify(text), function () { });
+        fs.writeFile("./logs/run-" + start.split(':').join('-') + ".json", JSON.stringify(text), function () { });
     };
     return Logger;
 }());

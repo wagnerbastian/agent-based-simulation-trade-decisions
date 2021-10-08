@@ -1,5 +1,4 @@
 const fs = require("fs");
-const fsPath = require('fs-path');
 import * as data from '../parameters.json';
 
 export class Logger {
@@ -25,8 +24,12 @@ export class Logger {
             results: simulationResults
         }
 
-        this.writeFile("results.json", JSON.stringify(text));
-        this.writeFile(`./logs/results-${start.split(':').join('-')}.json`, JSON.stringify(text));
+        try {
+            fs.mkdirSync('logs');
+        } catch(e) {}
+        fs.writeFile("results.json", JSON.stringify(text), function(){});
+        fs.writeFile(`./logs/results-${start.split(':').join('-')}.json`, JSON.stringify(text), function(){});
+
 
     }
 
@@ -45,18 +48,14 @@ export class Logger {
             strategy: data.decisionStrategy.type,
             results
         }
-        
-        this.writeFile("run.json", JSON.stringify(text));
-        this.writeFile(`./logs/run-${start.split(':').join('-')}.json`, JSON.stringify(text));
+
+        try {
+            fs.mkdirSync('logs');
+        } catch(e) {}
+        fs.writeFile("run.json", JSON.stringify(text), function(){})
+        fs.writeFile(`./logs/run-${start.split(':').join('-')}.json`, JSON.stringify(text), function(){});
+
     }
 
-    writeFile(path: string, content: string): void {
-        fsPath.writeFile(path, content, function(err: any){
-            if(err) {
-              console.error("error in writing file");
-              
-            } else {
-            }
-          });
-    }
+
 }
