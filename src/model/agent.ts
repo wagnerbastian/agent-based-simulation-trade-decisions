@@ -1,3 +1,4 @@
+import { Node } from "../service/network.service";
 import { Strategy } from "./strategy";
 
 export class Agent {
@@ -7,6 +8,7 @@ export class Agent {
     tradings: number;
     didTradeInThisStep: boolean;
     payoffs: number[];
+    node: Node;
 
 
     constructor(index: number) {
@@ -16,4 +18,9 @@ export class Agent {
         this.didTradeInThisStep = false;
         this.payoffs = [];
     }
+}
+
+export interface AgentPair {
+    a: Agent;
+    b: Agent;
 }

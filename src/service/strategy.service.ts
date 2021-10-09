@@ -26,15 +26,15 @@ export class StrategyService {
             this.simpleSwitch(agentA, agentB, payoffObject);
             break;
           }
-          case 'original': {        
+          case 'original-payoff': {        
             // Wahrscheinlichkeit wird für jeden Agenten berechnet
-            this.originalSwitch(agentA, agentB, populationInfo);
+            this.originalSwitchPayoff(agentA, agentB, populationInfo);
             break;
           }
 
-          case 'original-old': {        
+          case 'original-wealth': {        
             // Wahrscheinlichkeit wird für jeden Agenten berechnet
-            this.originalSwitchWrong(agentA, agentB, payoffObject, populationInfo);
+            this.originalSwitchWealth(agentA, agentB, payoffObject, populationInfo);
             break;
           }
         }
@@ -53,8 +53,15 @@ export class StrategyService {
         }
       }
     
-      originalSwitchWrong(agentA: Agent, agentB: Agent, payoffs: TradePayoff, populationInfo: PopulationInfo) {
-        if (payoffs.payoffA === 0 || payoffs.payoffB === 0) { return; }
+      /**
+       * Nachgebaute originale Strategieentscheidung aus dem Paper. Die Fittness (Reichtum) der Agenten werden verglichen
+       * @param agentA 
+       * @param agentB 
+       * @param payoffs 
+       * @param populationInfo 
+       */
+      originalSwitchWealth(agentA: Agent, agentB: Agent, payoffs: TradePayoff, populationInfo: PopulationInfo) {
+        // if (payoffs.payoffA === 0 || payoffs.payoffB === 0) { return; }
     
         // Zur Identifizierung die Strategien speichern
         const aStrategyName = agentA.strategy.name + '';
@@ -67,24 +74,30 @@ export class StrategyService {
     
         const maxNetWealthDifference = populationInfo.maxPossibleIndividualWealth - populationInfo.minPossibleIndividualWealth;
     
+        // wahrscheinlichkeit eines Strategiewechsel
         const probabilityA = wA / maxNetWealthDifference || 0;
         const probabilityB = wB / maxNetWealthDifference || 0;
     
-        // agent a switcht to agent b Strategy
+        // agent a switcht zu agent b Strategy
         if (Math.random() < probabilityA) {
           
           agentA.strategy = this.strategies.find(strategy => strategy.name === bStrategyName);
         }
     
-        // agent b switcht to agent a Strategy
+        // agent b switcht zu agent a Strategy
         if (Math.random() < probabilityB) {
           agentB.strategy = this.strategies.find(strategy => strategy.name === aStrategyName);
         }
       }
     
     
-    
-      originalSwitch(agentA: Agent, agentB: Agent, populationInfo: PopulationInfo): void {
+    /**
+     * Nutzt den letzten Payoff im Vergleich zu maximal möglichen Payoff. Nicht gut, da das Verhältniss immer Größer wird (letzter Payoff < max Payoff * runs)
+     * @param agentA 
+     * @param agentB 
+     * @param populationInfo 
+     */
+      originalSwitchPayoff(agentA: Agent, agentB: Agent, populationInfo: PopulationInfo): void {
         const aStrategyName = agentA.strategy.name + '';
         const bStrategyName = agentB.strategy.name + '';
         
@@ -95,8 +108,8 @@ export class StrategyService {
     
         // Maximal möglicher Unterschied aller bisherigen Handel
         const maxNetWealthDifference = populationInfo.maxPossibleIndividualWealth - populationInfo.minPossibleIndividualWealth;
-        // const maxNetWealthDifference = 60;
     
+        // wahrscheinlichkeit eines Strategiewechsel
         const probabilityA = Math.max(0, bPayoff - aPayoff) / maxNetWealthDifference || 0;
         const probabilityB = Math.max(0, aPayoff - bPayoff) / maxNetWealthDifference || 0;
     

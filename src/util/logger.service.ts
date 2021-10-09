@@ -8,6 +8,10 @@ export class Logger {
 
     }
 
+    log(data: string, title: string): void {
+        fs.writeFile(title, data, function(){});
+    }
+
     logHistory(start: string, end: string, simulationResults: any[]): void {
         const parameters = ((data as any).default)
 
@@ -28,7 +32,11 @@ export class Logger {
             fs.mkdirSync('logs');
         } catch(e) {}
         fs.writeFile("results.json", JSON.stringify(text), function(){});
-        fs.writeFile(`./logs/results-${start.split(':').join('-')}.json`, JSON.stringify(text), function(){});
+        
+
+        if (parameters.extendedLogging) {
+            fs.writeFile(`./logs/results-${start.split(':').join('-')}.json`, JSON.stringify(text), function(){});
+        }
 
 
     }
@@ -53,7 +61,11 @@ export class Logger {
             fs.mkdirSync('logs');
         } catch(e) {}
         fs.writeFile("run.json", JSON.stringify(text), function(){})
-        fs.writeFile(`./logs/run-${start.split(':').join('-')}.json`, JSON.stringify(text), function(){});
+
+        if (parameters.extendedLogging) {
+            fs.writeFile(`./logs/run-${start.split(':').join('-')}.json`, JSON.stringify(text), function(){});
+        }
+        
 
     }
 
