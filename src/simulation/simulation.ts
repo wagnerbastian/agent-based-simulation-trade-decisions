@@ -1,113 +1,128 @@
-import { Agent } from "../model/agent";
-import { PopulationInfo } from "../model/population-info";
-import { Strategy } from "../model/strategy";
-import { Trade } from "../model/trade";
-import { StrategyService } from "../service/strategy.service";
+import {
+  Agent, AgentPair
+} from "../model/agent";
+import {
+  PopulationInfo
+} from "../model/population-info";
+import {
+  Strategy
+} from "../model/strategy";
+import {
+  Trade
+} from "../model/trade";
+import {
+  StrategyService
+} from "../service/strategy.service";
 import * as parameters from '../parameters.json';
+import { PairingService } from "../service/pairing.service";
+import { NetworkService } from "../service/network.service";
+import { Logger } from "../util/logger.service";
 
 export class Simulation {
-    agents: Agent[];
-    strategies: Strategy[];
-    trade: Trade;
-    strategyHistory: any[] = [];
-    populationInfo: PopulationInfo;
+  agents: Agent[];
+  strategies: Strategy[];
+  trade: Trade;
+  strategyHistory: any[] = [];
+  populationInfo: PopulationInfo;
+  pairingService: PairingService;
+  networkService = new NetworkService();
+  logger = new Logger();
 
-    parameters = ((parameters as any).default).payoff as PayoffParameter;
-    
+  parameters = ((parameters as any).default).payoff as PayoffParameter;
 
 
-    constructor(agents: Agent[], private strategyService: StrategyService) {
-        this.strategies = this.strategyService.initStrategies();
 
-        // copy Agents damit jede Simulation die gleichen hat
-        this.agents = JSON.parse(JSON.stringify(agents)) as Agent[];
-        console.log( this.agents.length, " Agents copied");
+  constructor(agents: Agent[], private strategyService: StrategyService) {
+    this.pairingService = new PairingService();
+    this.strategies = this.strategyService.initStrategies();
 
-        this.trade = new Trade(this.parameters.r, this.parameters.temp, this.parameters.s, this.parameters.x);
-        this.populationInfo = new PopulationInfo(this.trade);
-    }
+    // copy Agents damit jede Simulation die gleichen hat
+    this.agents = JSON.parse(JSON.stringify(agents)) as Agent[];
+    console.log(this.agents.length, " Agents copied");
 
-    runSimulation(steps: number): any {
-        for (let index = 0; index < steps; index++) {
-          
-          for (let i = 0; i < this.agents.length / 2; i++) {
+    this.trade = new Trade(this.parameters.r, this.parameters.temp, this.parameters.s, this.parameters.x);
+    this.populationInfo = new PopulationInfo(this.trade);
+
+    // Netzwerk wird gebaut und Nachbarn zugewiesen
+    this.networkService.createNetwork(this.agents);
     
-            // Agenten filtern die in diesem Step noch nicht gehandelt haben
-            const agents = this.agents.filter(agent => !agent.didTradeInThisStep);
-            if (agents.length > 1) {
-    
-              // einen zufälligen Agenten auswählen
-              const a = agents[Math.floor(Math.random() * agents.length)];
-    
-              // gewählten Agenten aus dem Array entfernen
-              const elIndex = agents.indexOf(a);
-              agents.splice(elIndex, 1);
-    
-              // Agenten aus den restlichen auswählen
-              const b = agents[Math.floor(Math.random() * agents.length)];
-    
-              // Handel ausführen
-              const payoffObject = this.trade.performTrade(a, b);
-    
-              // Strategiewechsel
-              this.strategyService.performStrategySwitchCalculation(a, b, payoffObject, this.populationInfo);
-            } else {
-              // break;
-            }
-             
-          }
-    
-          // Verlauf der Strategies anlegen:
-          this.strategyHistory.push(this.countStrategies(this.agents));
-    
-          // Population Info updaten
-          this.populationInfo.updatePopulationInfo(this.agents, index + 1);
-    
-    
-          this.agents.forEach(agent => {
-            agent.didTradeInThisStep = false;
-          })
+  }
+
+  runSimulation(steps: number): any {
+    for (let index = 0; index < steps; index++) {
+
+      for (let i = 0; i < this.agents.length / 2; i++) {
+
+        // Agenten filtern die in diesem Step noch nicht gehandelt haben
+        const agentsToTrade: AgentPair = this.pairingService.simplePairAgents(this.agents);
+
+        // prüfen dass beide Agenten ausgewählt wurden
+        if (agentsToTrade.a && agentsToTrade.b) {
+
+          // Handel ausführen
+          const payoffObject = this.trade.performTrade(agentsToTrade.a, agentsToTrade.b);
+
+          // Strategiewechsel
+          this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo);
         }
-    
-        console.log(this.strategyHistory[this.strategyHistory.length -1 ]);
-        return this.strategyHistory;
+
+
+
       }
 
-      countStrategies(agents: Agent[]): StrategyDistribution {
-        const result = {
-          TC: 0,
-          UC: 0,
-          TP: 0,
-          UP: 0
-        }
-           
-        agents.forEach(agent => {
-          switch (agent.strategy.name) {
-            case 'TC': {
-              result.TC++;
-              break;
-            }
-            case 'UC': {
-              result.UC++;
-              break;
-            }
-            case 'TP': {
-              result.TP++;
-              break;
-            }
-            case 'UP': {
-              result.UP++;
-              break;
-              
-            }
-          }
-        })
-        return result;
+      // Verlauf der Strategies anlegen:
+      this.strategyHistory.push(this.countStrategies(this.agents));
+
+      // Population Info updaten
+      this.populationInfo.updatePopulationInfo(this.agents, index + 1);
+
+
+      this.agents.forEach(agent => {
+        agent.didTradeInThisStep = false;
+      })
     }
+
+    console.log(this.strategyHistory[this.strategyHistory.length - 1]);
+    return this.strategyHistory;
+  }
+
+  countStrategies(agents: Agent[]): StrategyDistribution {
+    const result = {
+      TC: 0,
+      UC: 0,
+      TP: 0,
+      UP: 0
+    }
+
+    agents.forEach(agent => {
+      switch (agent.strategy.name) {
+        case 'TC': {
+          result.TC++;
+          break;
+        }
+        case 'UC': {
+          result.UC++;
+          break;
+        }
+        case 'TP': {
+          result.TP++;
+          break;
+        }
+        case 'UP': {
+          result.UP++;
+          break;
+
+        }
+      }
+    })
+    return result;
+  }
+
+  
 }
 
-interface PayoffParameter  {
-    r: number,
+interface PayoffParameter {
+  r: number,
     temp: number,
     s: number,
     x: number
