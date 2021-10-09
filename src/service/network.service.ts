@@ -59,6 +59,11 @@ export class NetworkService {
         const result = this.agents.find(a => a.node.id === node.id);
         return result;
     }
+
+    getAgentFromNodeID(nodeID: number): Agent {
+        const result = this.agents.find(a => a.node.id === nodeID);
+        return result;
+    }
 }
 
 

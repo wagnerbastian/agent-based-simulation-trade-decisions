@@ -23,5 +23,6 @@
         "analyzePercentage": 0.25
     },
     "maxNeighbors": 5,
-    "minNeighbors": 1
+    "minNeighbors": 1,
+    "edgeWeight": 0.8
 }

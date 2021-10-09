@@ -45,6 +45,11 @@ export class Simulation {
 
     // Netzwerk wird gebaut und Nachbarn zugewiesen
     this.networkService.createNetwork(this.agents);
+
+    // Pairingservice kriegt NetzwerkInfo übergeben
+    this.pairingService.networkService = this.networkService;
+
+    // this.pairingService.networkPairAgentsForTrade(this.agents);
     
   }
 
