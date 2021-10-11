@@ -39,9 +39,11 @@ for (var simulationCounter = 0; simulationCounter < parameters.simulations; simu
     var start = new Date().toISOString();
     // Simulationen, mehrere erstellen um damit zu arbeiten.
     var x = new simulation_1.Simulation(agents, strategyService);
-    console.log(simService.countStrategies(x.agents));
-    x.runSimulation(data.runs);
-    for (var i = 0; i < data.repititions; i++) {
+    simulationResults.push({
+        run: 0,
+        history: x.runSimulation(data.runs)
+    });
+    for (var i = 1; i < data.repititions; i++) {
         var x_1 = new simulation_1.Simulation(agents, strategyService);
         simulationResults.push({
             run: i,

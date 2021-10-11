@@ -25,6 +25,9 @@ var data = __importStar(require("../parameters.json"));
 var Logger = /** @class */ (function () {
     function Logger() {
     }
+    Logger.prototype.log = function (data, title) {
+        fs.writeFile(title, data, function () { });
+    };
     Logger.prototype.logHistory = function (start, end, simulationResults) {
         var parameters = (data.default);
         var duration = (new Date(end).getTime() - new Date(start).getTime()) / 1000;
@@ -36,6 +39,7 @@ var Logger = /** @class */ (function () {
             iterations: data.runs,
             runs: data.repititions,
             strategy: data.decisionStrategy.type,
+            pairingMethod: data.pairingMethod,
             results: simulationResults
         };
         try {
@@ -43,7 +47,9 @@ var Logger = /** @class */ (function () {
         }
         catch (e) { }
         fs.writeFile("results.json", JSON.stringify(text), function () { });
-        fs.writeFile("./logs/results-" + start.split(':').join('-') + ".json", JSON.stringify(text), function () { });
+        if (parameters.extendedLogging) {
+            fs.writeFile("./logs/results-" + start.split(':').join('-') + ".json", JSON.stringify(text), function () { });
+        }
     };
     Logger.prototype.logRun = function (start, end, results) {
         var parameters = (data.default);
@@ -56,6 +62,7 @@ var Logger = /** @class */ (function () {
             iterations: data.runs,
             runs: data.repititions,
             strategy: data.decisionStrategy.type,
+            pairingMethid: data.pairingMethod,
             results: results
         };
         try {
@@ -63,7 +70,9 @@ var Logger = /** @class */ (function () {
         }
         catch (e) { }
         fs.writeFile("run.json", JSON.stringify(text), function () { });
-        fs.writeFile("./logs/run-" + start.split(':').join('-') + ".json", JSON.stringify(text), function () { });
+        if (parameters.extendedLogging) {
+            fs.writeFile("./logs/run-" + start.split(':').join('-') + ".json", JSON.stringify(text), function () { });
+        }
     };
     return Logger;
 }());

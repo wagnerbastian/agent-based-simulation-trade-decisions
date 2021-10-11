@@ -54,9 +54,13 @@ export class PairingService {
             // Agenten der noch nicht gehandelt hat suchen
             if (!agents[index].didTradeInThisStep) {
             const a = agents[index];
-
+            let b = null;
             // suche Partner aus den nachbarn
-            const b = this.searchTradePartner(a);
+            try {
+                b = this.searchTradePartner(a);
+            } catch(e) {
+                
+            }
 
             return { a, b };
             }

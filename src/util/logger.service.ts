@@ -1,4 +1,6 @@
 const fs = require("fs");
+import { Agent } from '../model/agent';
+import { PopulationInfo } from '../model/population-info';
 import * as data from '../parameters.json';
 
 export class Logger {
@@ -25,6 +27,7 @@ export class Logger {
             iterations: data.runs,
             runs: data.repititions,
             strategy: data.decisionStrategy.type,
+            pairingMethod: data.pairingMethod,
             results: simulationResults
         }
 
@@ -41,7 +44,7 @@ export class Logger {
 
     }
 
-    logRun(start: string, end: string, results: any) {
+    logRun(start: string, end: string, results: any, populationInfo: PopulationInfo) {
         const parameters = ((data as any).default)
 
         const duration = (new Date(end).getTime() - new Date(start).getTime()) / 1000;
@@ -54,6 +57,8 @@ export class Logger {
             iterations: data.runs,
             runs: data.repititions,
             strategy: data.decisionStrategy.type,
+            pairingMethid: data.pairingMethod,
+            populationInfo,
             results
         }
 
@@ -67,6 +72,24 @@ export class Logger {
         }
         
 
+    }
+
+    logGraphInfo(agents: Agent[]): void {
+        let connections: {a: number, b: number}[] = [];
+        agents.forEach(agent => {
+            agent.node.neighbors.forEach(n => {
+                connections.push({
+                    a: agent.node.id,
+                    b: n
+                });
+            })
+        });
+
+        let text = ``;
+        connections.forEach(connection => {
+            text += `${connection.a} ${connection.b}\n`
+        });
+        fs.writeFile("graph.txt", text, function(){})
     }
 
 

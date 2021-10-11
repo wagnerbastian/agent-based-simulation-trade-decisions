@@ -23,38 +23,58 @@ exports.Simulation = void 0;
 var population_info_1 = require("../model/population-info");
 var trade_1 = require("../model/trade");
 var parameters = __importStar(require("../parameters.json"));
+var pairing_service_1 = require("../service/pairing.service");
+var network_service_1 = require("../service/network.service");
+var logger_service_1 = require("../util/logger.service");
 var Simulation = /** @class */ (function () {
     function Simulation(agents, strategyService) {
         this.strategyService = strategyService;
         this.strategyHistory = [];
+        this.networkService = new network_service_1.NetworkService();
+        this.logger = new logger_service_1.Logger();
         this.parameters = (parameters.default).payoff;
+        this.pairingMethod = parameters.default.pairingMethod;
+        this.pairingService = new pairing_service_1.PairingService();
         this.strategies = this.strategyService.initStrategies();
         // copy Agents damit jede Simulation die gleichen hat
         this.agents = JSON.parse(JSON.stringify(agents));
         console.log(this.agents.length, " Agents copied");
         this.trade = new trade_1.Trade(this.parameters.r, this.parameters.temp, this.parameters.s, this.parameters.x);
         this.populationInfo = new population_info_1.PopulationInfo(this.trade);
+        // Netzwerk wird gebaut und Nachbarn zugewiesen
+        this.networkService.createNetwork(this.agents);
+        // Pairingservice kriegt NetzwerkInfo übergeben
+        this.pairingService.networkService = this.networkService;
+        // this.pairingService.networkPairAgentsForTrade(this.agents);
     }
     Simulation.prototype.runSimulation = function (steps) {
         for (var index = 0; index < steps; index++) {
-            for (var i = 0; i < this.agents.length / 2; i++) {
-                // Agenten filtern die in diesem Step noch nicht gehandelt haben
-                var agents = this.agents.filter(function (agent) { return !agent.didTradeInThisStep; });
-                if (agents.length > 1) {
-                    // einen zufälligen Agenten auswählen
-                    var a = agents[Math.floor(Math.random() * agents.length)];
-                    // gewählten Agenten aus dem Array entfernen
-                    var elIndex = agents.indexOf(a);
-                    agents.splice(elIndex, 1);
-                    // Agenten aus den restlichen auswählen
-                    var b = agents[Math.floor(Math.random() * agents.length)];
-                    // Handel ausführen
-                    var payoffObject = this.trade.performTrade(a, b);
-                    // Strategiewechsel
-                    this.strategyService.performStrategySwitchCalculation(a, b, payoffObject, this.populationInfo);
+            switch (this.pairingMethod) {
+                case 'simple': {
+                    for (var i = 0; i < this.agents.length / 2; i++) {
+                        // Agenten filtern die in diesem Step noch nicht gehandelt haben
+                        var agentsToTrade = this.pairingService.simplePairAgents(this.agents);
+                        // prüfen dass beide Agenten ausgewählt wurden
+                        if (agentsToTrade.a && agentsToTrade.b) {
+                            // Handel ausführen
+                            var payoffObject = this.trade.performTrade(agentsToTrade.a, agentsToTrade.b);
+                            // Strategiewechsel
+                            this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo);
+                        }
+                    }
                 }
-                else {
-                    // break;
+                case 'network': {
+                    for (var i = 0; i < this.agents.length - 1; i++) {
+                        // Agenten filtern die in diesem Step noch nicht gehandelt haben
+                        var agentsToTrade = this.pairingService.networkPairAgentsForTrade(this.agents);
+                        // prüfen dass beide Agenten ausgewählt wurden
+                        if (agentsToTrade.a && agentsToTrade.b) {
+                            // Handel ausführen
+                            var payoffObject = this.trade.performTrade(agentsToTrade.a, agentsToTrade.b);
+                            // Strategiewechsel
+                            this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo);
+                        }
+                    }
                 }
             }
             // Verlauf der Strategies anlegen:

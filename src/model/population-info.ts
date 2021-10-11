@@ -4,6 +4,7 @@ import { Trade } from "./trade";
 
 export class PopulationInfo {
     wealthTotal= 0;
+    wealthTotalHistory: number[] = [];
     maxWealthTotal = 0;
     minWealthTotal = 0;
     maxIndividualWealthTotal= 0;
@@ -30,6 +31,7 @@ export class PopulationInfo {
 
         this.wealthTotal = 0;
         agents.forEach(agent => { this.wealthTotal += agent.wealth; })
+        this.wealthTotalHistory.push(this.wealthTotal);
 
         if (this.maxIndividualWealth > this.maxIndividualWealthTotal) {
             this.maxIndividualWealthTotal = this.maxIndividualWealth;

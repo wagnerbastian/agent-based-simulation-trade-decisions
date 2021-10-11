@@ -14,6 +14,7 @@ import {
 import {
     Analyzer
 } from "./simulation/analyzer";
+import { PopulationInfo } from "./model/population-info";
 const parameters = ((data as any).default)
 const fs = require("fs");
 
@@ -34,22 +35,28 @@ for (let simulationCounter = 0; simulationCounter < parameters.simulations; simu
     const start = new Date().toISOString();
     // Simulationen, mehrere erstellen um damit zu arbeiten.
     const x = new Simulation(agents, strategyService);
-    console.log(simService.countStrategies(x.agents));
-    x.runSimulation(data.runs);
+    simulationResults.push({
+        run: 0,
+        history: x.runSimulation(data.runs),
+        populationData: x.populationInfo
+    });
 
-    for (let i = 0; i < data.repititions; i++) {
+    for (let i = 1; i < data.repititions; i++) {
         const x = new Simulation(agents, strategyService);
         simulationResults.push({
             run: i,
-            history: x.runSimulation(data.runs)
+            history: x.runSimulation(data.runs),
+            populationData: x.populationInfo
         });
     }
 
+    
     const result = analyzer.analyzeResults(simulationResults);
+    const populationInfo = analyzer.analyzePopulationInfo(simulationResults)
 
     const end = new Date().toISOString();
     logger.logHistory(start, end, simulationResults)
-    logger.logRun(start, end, result)
+    logger.logRun(start, end, result, populationInfo)
 }
 
 console.log("--- Finished execution of simulation ---")

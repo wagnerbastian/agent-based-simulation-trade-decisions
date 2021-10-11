@@ -29,6 +29,7 @@ export class Simulation {
   logger = new Logger();
 
   parameters = ((parameters as any).default).payoff as PayoffParameter;
+  pairingMethod = (parameters as any).default.pairingMethod;
 
 
 
@@ -46,6 +47,9 @@ export class Simulation {
     // Netzwerk wird gebaut und Nachbarn zugewiesen
     this.networkService.createNetwork(this.agents);
 
+    // Kommunikationsnetzwerk wird gebaut und Nachbarn zugewiesen
+    this.networkService.createCommunicationNetwork(this.agents);
+
     // Pairingservice kriegt NetzwerkInfo übergeben
     this.pairingService.networkService = this.networkService;
 
@@ -56,24 +60,46 @@ export class Simulation {
   runSimulation(steps: number): any {
     for (let index = 0; index < steps; index++) {
 
-      for (let i = 0; i < this.agents.length / 2; i++) {
+      switch (this.pairingMethod) {
+        case 'simple': {
+          for (let i = 0; i < this.agents.length / 2; i++) {
 
-        // Agenten filtern die in diesem Step noch nicht gehandelt haben
-        const agentsToTrade: AgentPair = this.pairingService.simplePairAgents(this.agents);
-
-        // prüfen dass beide Agenten ausgewählt wurden
-        if (agentsToTrade.a && agentsToTrade.b) {
-
-          // Handel ausführen
-          const payoffObject = this.trade.performTrade(agentsToTrade.a, agentsToTrade.b);
-
-          // Strategiewechsel
-          this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo);
+            // Agenten filtern die in diesem Step noch nicht gehandelt haben
+            const agentsToTrade: AgentPair = this.pairingService.simplePairAgents(this.agents);
+    
+            // prüfen dass beide Agenten ausgewählt wurden
+            if (agentsToTrade.a && agentsToTrade.b) {
+    
+              // Handel ausführen
+              const payoffObject = this.trade.performTrade(agentsToTrade.a, agentsToTrade.b);
+    
+              // Strategiewechsel
+              this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo);
+            }
+    
+          }
         }
+        case 'network': {
+          for (let i = 0; i < this.agents.length - 1; i++) {
 
-
-
+            // Agenten filtern die in diesem Step noch nicht gehandelt haben
+            const agentsToTrade: AgentPair = this.pairingService.networkPairAgentsForTrade(this.agents);
+    
+            // prüfen dass beide Agenten ausgewählt wurden
+            if (agentsToTrade.a && agentsToTrade.b) {
+    
+              // Handel ausführen
+              const payoffObject = this.trade.performTrade(agentsToTrade.a, agentsToTrade.b);
+    
+              // Strategiewechsel
+              this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo);
+            }
+    
+          }
+        }
       }
+
+      
 
       // Verlauf der Strategies anlegen:
       this.strategyHistory.push(this.countStrategies(this.agents));
@@ -88,6 +114,7 @@ export class Simulation {
     }
 
     console.log(this.strategyHistory[this.strategyHistory.length - 1]);
+    this.logger.logGraphInfo(this.agents);
     return this.strategyHistory;
   }
 
@@ -122,7 +149,6 @@ export class Simulation {
     })
     return result;
   }
-
   
 }
 

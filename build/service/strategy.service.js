@@ -41,14 +41,14 @@ var StrategyService = /** @class */ (function () {
                 this.simpleSwitch(agentA, agentB, payoffObject);
                 break;
             }
-            case 'original': {
+            case 'original-payoff': {
                 // Wahrscheinlichkeit wird für jeden Agenten berechnet
-                this.originalSwitch(agentA, agentB, populationInfo);
+                this.originalSwitchPayoff(agentA, agentB, populationInfo);
                 break;
             }
-            case 'original-old': {
+            case 'original-wealth': {
                 // Wahrscheinlichkeit wird für jeden Agenten berechnet
-                this.originalSwitchWrong(agentA, agentB, payoffObject, populationInfo);
+                this.originalSwitchWealth(agentA, agentB, payoffObject, populationInfo);
                 break;
             }
         }
@@ -64,10 +64,15 @@ var StrategyService = /** @class */ (function () {
             agentB.strategy = agentA.strategy;
         }
     };
-    StrategyService.prototype.originalSwitchWrong = function (agentA, agentB, payoffs, populationInfo) {
-        if (payoffs.payoffA === 0 || payoffs.payoffB === 0) {
-            return;
-        }
+    /**
+     * Nachgebaute originale Strategieentscheidung aus dem Paper. Die Fittness (Reichtum) der Agenten werden verglichen
+     * @param agentA
+     * @param agentB
+     * @param payoffs
+     * @param populationInfo
+     */
+    StrategyService.prototype.originalSwitchWealth = function (agentA, agentB, payoffs, populationInfo) {
+        // if (payoffs.payoffA === 0 || payoffs.payoffB === 0) { return; }
         // Zur Identifizierung die Strategien speichern
         var aStrategyName = agentA.strategy.name + '';
         var bStrategyName = agentB.strategy.name + '';
@@ -75,18 +80,25 @@ var StrategyService = /** @class */ (function () {
         var wA = Math.max(0, (agentB.wealth - payoffs.payoffB) - (agentA.wealth - payoffs.payoffA));
         var wB = Math.max(0, (agentA.wealth - payoffs.payoffA) - (agentB.wealth - payoffs.payoffB));
         var maxNetWealthDifference = populationInfo.maxPossibleIndividualWealth - populationInfo.minPossibleIndividualWealth;
+        // wahrscheinlichkeit eines Strategiewechsel
         var probabilityA = wA / maxNetWealthDifference || 0;
         var probabilityB = wB / maxNetWealthDifference || 0;
-        // agent a switcht to agent b Strategy
+        // agent a switcht zu agent b Strategy
         if (Math.random() < probabilityA) {
             agentA.strategy = this.strategies.find(function (strategy) { return strategy.name === bStrategyName; });
         }
-        // agent b switcht to agent a Strategy
+        // agent b switcht zu agent a Strategy
         if (Math.random() < probabilityB) {
             agentB.strategy = this.strategies.find(function (strategy) { return strategy.name === aStrategyName; });
         }
     };
-    StrategyService.prototype.originalSwitch = function (agentA, agentB, populationInfo) {
+    /**
+     * Nutzt den letzten Payoff im Vergleich zu maximal möglichen Payoff. Nicht gut, da das Verhältniss immer Größer wird (letzter Payoff < max Payoff * runs)
+     * @param agentA
+     * @param agentB
+     * @param populationInfo
+     */
+    StrategyService.prototype.originalSwitchPayoff = function (agentA, agentB, populationInfo) {
         var aStrategyName = agentA.strategy.name + '';
         var bStrategyName = agentB.strategy.name + '';
         // Payoff von t-1 (eigentlich t-2 da der handel durch ist) bekommen. Im ersten Handel ist er nicht da => 0
@@ -94,7 +106,7 @@ var StrategyService = /** @class */ (function () {
         var bPayoff = agentB.payoffs.length > 1 ? agentB.payoffs[agentB.payoffs.length - 2] : 0;
         // Maximal möglicher Unterschied aller bisherigen Handel
         var maxNetWealthDifference = populationInfo.maxPossibleIndividualWealth - populationInfo.minPossibleIndividualWealth;
-        // const maxNetWealthDifference = 60;
+        // wahrscheinlichkeit eines Strategiewechsel
         var probabilityA = Math.max(0, bPayoff - aPayoff) / maxNetWealthDifference || 0;
         var probabilityB = Math.max(0, aPayoff - bPayoff) / maxNetWealthDifference || 0;
         // console.log(aPayoff, bPayoff, maxNetWealthDifference);

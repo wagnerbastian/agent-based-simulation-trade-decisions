@@ -1,10 +1,11 @@
 {
     "agents": 1250,
-    "runs": 5,
-    "repititions": 5,
+    "runs": 5000,
+    "repititions": 25,
     "simulations": 1,
+    "extendedLogging": true,
     "decisionStrategy": {
-        "type": "original-old",
+        "type": "original-wealth",
         "distribution": [
             0.25,
             0.5,
@@ -20,5 +21,9 @@
     },
     "analytics": {
         "analyzePercentage": 0.25
-    }
+    },
+    "maxNeighbors": 5,
+    "minNeighbors": 1,
+    "edgeWeight": 0.8,
+    "pairingMethod": "network"
 }

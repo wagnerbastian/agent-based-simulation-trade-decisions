@@ -9,6 +9,7 @@ export class Agent {
     didTradeInThisStep: boolean;
     payoffs: number[];
     node: Node;
+    communicationNode: Node;
 
 
     constructor(index: number) {

@@ -5,6 +5,7 @@ import * as data from '../parameters.json';
 export class NetworkService {
     parameters = (data as any).default;
     nodes: Node[] = [];
+    communicationNodes: Node[] = [];
     agents: Agent[];
 
 
@@ -27,6 +28,46 @@ export class NetworkService {
         agents.forEach(agent => {
             this.setupNeighbors(agent, agents)
         });
+    }
+    /**
+     * Kommunaikationsnetzwerk wird erstellt und Nachbarn zugewiesen
+     */
+    createCommunicationNetwork(agents: Agent[]): void {
+        // jedem Agenten einen Node erstellen
+        let index = 0;
+        agents.forEach(agent => {
+            agent.communicationNode = new Node(index);
+            agent.communicationNode.agent = agent.index;
+            this.communicationNodes.push(agent.node);
+            index++;
+        });
+
+        agents.forEach(agent => {
+            this.setupCommunicationNeighbors(agent, agents)
+        });
+    }
+
+    /**
+     * Nachbarn für die Kommunikation werden vergeben.
+     */
+    setupCommunicationNeighbors(agent: Agent, agents: Agent[]): void {
+        if (agent.communicationNode.neighbors.length === 0) {
+            // neuer Agent ohne Nachbarn
+
+            // Anzahl Nachbarn wird zufällig generiert
+            const neighbors = Math.round(Math.random() * this.parameters.maxNeighbors + 0.5);
+
+            // zufällige Anzahl an Nachbarn vergeben
+            for (let index = 0; index < neighbors; index ++) {
+                // filtern nach Agenten die noch nicht "voll" sind und diesen Agenten noch nicht als Nachbar haben
+                const possibleNeighbors: Agent[] = agents.filter(a => a.index != agent.index && agent.communicationNode.neighbors.length < this.parameters.maxNeighbors && !agent.communicationNode.neighbors.includes(a.node.id));
+                if (possibleNeighbors.length > 0) {
+                    const neighbor = possibleNeighbors[Math.floor(Math.random() * possibleNeighbors.length)];
+                    neighbor.communicationNode.neighbors.push(agent.communicationNode.id);
+                    agent.communicationNode.neighbors.push(neighbor.communicationNode.id);
+                }
+            }
+        }
     }
 
 
