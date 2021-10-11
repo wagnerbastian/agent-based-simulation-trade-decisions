@@ -40,7 +40,6 @@ export class Simulation {
     // copy Agents damit jede Simulation die gleichen hat
     this.agents = JSON.parse(JSON.stringify(agents)) as Agent[];
     console.log(this.agents.length, " Agents copied");
-
     this.trade = new Trade(this.parameters.r, this.parameters.temp, this.parameters.s, this.parameters.x);
     this.populationInfo = new PopulationInfo(this.trade);
 
@@ -52,6 +51,9 @@ export class Simulation {
 
     // Pairingservice kriegt NetzwerkInfo übergeben
     this.pairingService.networkService = this.networkService;
+
+
+    this.strategyService.networkService = this.networkService;
 
     // this.pairingService.networkPairAgentsForTrade(this.agents);
     
@@ -103,6 +105,7 @@ export class Simulation {
 
       // Verlauf der Strategies anlegen:
       this.strategyHistory.push(this.countStrategies(this.agents));
+      
 
       // Population Info updaten
       this.populationInfo.updatePopulationInfo(this.agents, index + 1);
@@ -113,7 +116,16 @@ export class Simulation {
       })
     }
 
-    console.log(this.strategyHistory[this.strategyHistory.length - 1]);
+    console.log('\nRepitions initial distribution:\n', this.strategyHistory[0]);
+    console.log('\nRepitions last distribution:\n', this.strategyHistory[this.strategyHistory.length - 1], '\n');
+    console.log('Saved steps: ', this.strategyHistory.length);
+    
+    let w = 0;
+    this.agents.forEach(agent => {
+      w += agent.wealth;
+    })
+
+    console.log("wealth:", w);
     this.logger.logGraphInfo(this.agents);
     return this.strategyHistory;
   }

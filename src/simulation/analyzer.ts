@@ -13,7 +13,8 @@ export class Analyzer {
         this.logger = logger;
     }
 
-    analyzePopulationInfo(history: any[]): PopulationInfo {
+    analyzePopulationInfo(historyIn: any[]): PopulationInfo {
+        const history = JSON.parse(JSON.stringify(historyIn)) as any[];
         
         let populationInfos: PopulationInfo = history[0].populationData;
 
@@ -58,7 +59,8 @@ export class Analyzer {
         
     }
 
-    analyzeResults(history: any[]): StrategyDistribution {
+    analyzeResults(historyIn: any[]): StrategyDistribution {
+        const history = JSON.parse(JSON.stringify(historyIn)) as any[];
         let result: any[] = [];
         
         history.forEach(his => {

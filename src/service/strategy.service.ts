@@ -3,10 +3,14 @@ import { PopulationInfo } from '../model/population-info';
 import { Strategy } from '../model/strategy';
 import { TradePayoff } from '../model/trade';
 import * as parameters from '../parameters.json';
+import { NetworkService } from './network.service';
 
 export class StrategyService {
     strategy = (parameters as any).default.decisionStrategy as DecisionStrategy;
     strategies: Strategy[];
+    networkService: NetworkService;
+    communicationModifier = (parameters as any).default.communicationModifier as number;
+    communicationPathWeight = (parameters as any).default.edgeWeightCommunication as number;
 
 
     initStrategies(): Strategy[] {
@@ -34,7 +38,12 @@ export class StrategyService {
 
           case 'original-wealth': {        
             // Wahrscheinlichkeit wird für jeden Agenten berechnet
-            this.originalSwitchWealth(agentA, agentB, payoffObject, populationInfo);
+            this.originalSwitchWealth(agentA, agentB, payoffObject, populationInfo, false);
+            break;
+          }
+          case 'original-wealth-network': {        
+            // Wahrscheinlichkeit wird für jeden Agenten berechnet
+            this.originalSwitchWealth(agentA, agentB, payoffObject, populationInfo, true);
             break;
           }
         }
@@ -60,7 +69,7 @@ export class StrategyService {
        * @param payoffs 
        * @param populationInfo 
        */
-      originalSwitchWealth(agentA: Agent, agentB: Agent, payoffs: TradePayoff, populationInfo: PopulationInfo) {
+      originalSwitchWealth(agentA: Agent, agentB: Agent, payoffs: TradePayoff, populationInfo: PopulationInfo, communication: boolean) {
         // if (payoffs.payoffA === 0 || payoffs.payoffB === 0) { return; }
     
         // Zur Identifizierung die Strategien speichern
@@ -75,8 +84,24 @@ export class StrategyService {
         const maxNetWealthDifference = populationInfo.maxPossibleIndividualWealth - populationInfo.minPossibleIndividualWealth;
     
         // wahrscheinlichkeit eines Strategiewechsel
-        const probabilityA = wA / maxNetWealthDifference || 0;
-        const probabilityB = wB / maxNetWealthDifference || 0;
+        let probabilityA = wA / maxNetWealthDifference || 0;
+        let probabilityB = wB / maxNetWealthDifference || 0;
+
+        if (communication) {
+          /**
+           * wenn Kommunikation an ist, wird die Wahrscheinlichkeit erhöht zu der Strategie zu wechseln,
+           * die von den Nachbarn am meisten gewählt wurde
+           */
+          if (this.getNeighborsMostChosenStrategies(agentA).includes(bStrategyName)) {
+            // modify Probability of A to switch
+            probabilityA += this.communicationModifier;
+          }
+
+          if (this.getNeighborsMostChosenStrategies(agentB).includes(aStrategyName)) {
+            // modify Probability of B to switch
+            probabilityB += this.communicationModifier;
+          }
+        }
     
         // agent a switcht zu agent b Strategy
         if (Math.random() < probabilityA) {
@@ -128,6 +153,60 @@ export class StrategyService {
         }
       }
 
+      getNeighborsMostChosenStrategies(agent: Agent): string[] {
+        const neighbors: Agent[] = [];
+        let TP = 0;
+        let UP = 0;
+        let TC = 0;
+        let UC = 0;
+
+        /**
+         * Wahrscheinlichkeit, dass die direkten Nachbarn ausgewertet werden.
+         * Ansonsten werden alle Nachbarn (ausser der eigene Agent) eines direkten Nachbarn ausgewertet
+         */
+        const takeDirectNeighbor = Math.random() < this.communicationPathWeight;
+
+        if (takeDirectNeighbor) {
+          agent.communicationNode.neighbors.forEach(n => {
+            neighbors.push(this.networkService.getAgentFromNodeID(n));
+          })
+        } else {
+          // Nachbaragenten bekommen
+          const travelTo: Agent[] = [];
+          agent.communicationNode.neighbors.forEach(n => {
+            travelTo.push(this.networkService.getAgentFromNodeID(n));
+          });
+          // zufälligen Nachbaragenten auswählen
+          const index = Math.floor(Math.random() * travelTo.length);
+
+          // Nachbarn des gewählten Agenten in Array pushen. Ausser den eigenen.
+          travelTo[index].communicationNode.neighbors.forEach(n => {
+            if (n !== agent.communicationNode.id) {
+              neighbors.push(this.networkService.getAgentFromNodeID(n));
+            }
+            
+          })
+        }
+
+        // Strategien der Nachbarn zählen
+        neighbors.forEach(n => {
+          if (n.strategy.name === 'TP') { TP++; }
+          else if (n.strategy.name === 'UP') { UP++; }
+          else if (n.strategy.name === 'TC') { TC++; }
+          else if (n.strategy.name === 'UC') { UC++; }
+        });
+
+        // Anzahl der am meisten gewählten Strategie nehmen.
+        const max = Math.max(TP, UP, TC, UC);
+        const result: string[] = [];
+        // alle Strategien die am meisten gewählt wurden in Array pushen und zurückgeben
+        if (TP === max) {result.push('TP'); }
+        if (UP === max) {result.push('UP'); }
+        if (TC === max) {result.push('TC'); }
+        if (UC === max) {result.push('UC'); }
+
+        return result;
+      }
 }
 
 

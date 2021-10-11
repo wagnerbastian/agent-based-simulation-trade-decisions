@@ -36,6 +36,15 @@ export class Trade {
         b.payoffs.push(payoffB);
 
         // Payoff objekt zurückgeben um damit arbeiten zu können (Strategiewechsel)
+
+        if (payoffA < 0 && payoffA * -1 > payoffB) {
+            console.log(payoffA, payoffB);
+            
+        }
+        if (payoffB < 0 && payoffB * -1 > payoffA) {
+            console.log(payoffA, payoffB);
+            
+        }
         return {payoffA, payoffB};
     }
 }
