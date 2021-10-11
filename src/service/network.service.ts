@@ -55,7 +55,7 @@ export class NetworkService {
             // neuer Agent ohne Nachbarn
 
             // Anzahl Nachbarn wird zufällig generiert
-            const neighbors = Math.round(Math.random() * this.parameters.maxNeighbors + 0.5);
+            const neighbors = Math.round(Math.random() * this.parameters.maxCommunicationNeighbors + 0.5);
 
             // zufällige Anzahl an Nachbarn vergeben
             for (let index = 0; index < neighbors; index ++) {

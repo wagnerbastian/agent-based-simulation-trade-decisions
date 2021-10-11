@@ -1,11 +1,11 @@
 {
     "agents": 500,
-    "runs": 100,
+    "runs": 6000,
     "repititions": 1,
     "simulations": 1,
     "extendedLogging": false,
     "decisionStrategy" : {
-        "type": "original-wealth",
+        "type": "original-wealth-network",
         "distribution": [
             0.25,
             0.5,
@@ -14,7 +14,7 @@
         ]
     },
     "payoff": {
-        "r": 21,
+        "r": 33,
         "temp": 40,
         "s": 20,
         "x": 10
@@ -24,8 +24,9 @@
     },
     "maxNeighbors": 10,
     "minNeighbors": 3,
-    "edgeWeight": 0.8,
+    "edgeWeight": 0.9,
     "pairingMethod": "network",
-    "edgeWeightCommunication": 0.95,
-    "communicationModifier": 0.05
+    "edgeWeightCommunication": 0.8,
+    "communicationModifier": 0.1,
+    "maxCommunicationNeighbors": 20
 }

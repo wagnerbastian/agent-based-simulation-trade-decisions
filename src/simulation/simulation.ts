@@ -60,7 +60,9 @@ export class Simulation {
   }
 
   runSimulation(steps: number): any {
+    const totalPayoffHistory: number[] = [];
     for (let index = 0; index < steps; index++) {
+      let totalPayoff = 0;
 
       switch (this.pairingMethod) {
         case 'simple': {
@@ -74,6 +76,8 @@ export class Simulation {
     
               // Handel ausführen
               const payoffObject = this.trade.performTrade(agentsToTrade.a, agentsToTrade.b);
+              totalPayoff += payoffObject.payoffA;
+              totalPayoff += payoffObject.payoffB;
     
               // Strategiewechsel
               this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo);
@@ -92,6 +96,8 @@ export class Simulation {
     
               // Handel ausführen
               const payoffObject = this.trade.performTrade(agentsToTrade.a, agentsToTrade.b);
+              totalPayoff += payoffObject.payoffA;
+              totalPayoff += payoffObject.payoffB;
     
               // Strategiewechsel
               this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo);
@@ -99,9 +105,10 @@ export class Simulation {
     
           }
         }
+        
       }
 
-      
+      totalPayoffHistory.push(totalPayoff);
 
       // Verlauf der Strategies anlegen:
       this.strategyHistory.push(this.countStrategies(this.agents));
@@ -109,13 +116,14 @@ export class Simulation {
 
       // Population Info updaten
       this.populationInfo.updatePopulationInfo(this.agents, index + 1);
+      
 
 
       this.agents.forEach(agent => {
         agent.didTradeInThisStep = false;
       })
     }
-
+    this.populationInfo.totalPayoffHistory = totalPayoffHistory;
     console.log('\nRepitions initial distribution:\n', this.strategyHistory[0]);
     console.log('\nRepitions last distribution:\n', this.strategyHistory[this.strategyHistory.length - 1], '\n');
     console.log('Saved steps: ', this.strategyHistory.length);
@@ -124,9 +132,6 @@ export class Simulation {
     this.agents.forEach(agent => {
       w += agent.wealth;
     })
-
-    console.log("wealth:", w);
-    this.logger.logGraphInfo(this.agents);
     return this.strategyHistory;
   }
 

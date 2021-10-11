@@ -92,12 +92,12 @@ export class StrategyService {
            * wenn Kommunikation an ist, wird die Wahrscheinlichkeit erhöht zu der Strategie zu wechseln,
            * die von den Nachbarn am meisten gewählt wurde
            */
-          if (this.getNeighborsMostChosenStrategies(agentA).includes(bStrategyName)) {
+          if (this.getNeighborsMostChosenStrategies(agentA).includes(bStrategyName) && probabilityA > 0) {
             // modify Probability of A to switch
-            probabilityA += this.communicationModifier;
+            probabilityA += this.communicationModifier;            
           }
 
-          if (this.getNeighborsMostChosenStrategies(agentB).includes(aStrategyName)) {
+          if (this.getNeighborsMostChosenStrategies(agentB).includes(aStrategyName) && probabilityB > 0) {
             // modify Probability of B to switch
             probabilityB += this.communicationModifier;
           }

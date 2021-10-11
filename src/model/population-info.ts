@@ -5,6 +5,7 @@ import { Trade } from "./trade";
 export class PopulationInfo {
     wealthTotal= 0;
     wealthTotalHistory: number[] = [];
+    totalPayoffHistory: number[] = [];
     maxWealthTotal = 0;
     minWealthTotal = 0;
     maxIndividualWealthTotal= 0;

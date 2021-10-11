@@ -14,7 +14,7 @@ export class Analyzer {
     }
 
     analyzePopulationInfo(historyIn: any[]): PopulationInfo {
-        const history = JSON.parse(JSON.stringify(historyIn)) as any[];
+        const history = JSON.parse(JSON.stringify(historyIn)) as any[];        
         
         let populationInfos: PopulationInfo = history[0].populationData;
 
@@ -54,6 +54,23 @@ export class Analyzer {
         }
         populationInfos.wealthTotalHistory = wealthHistory;
 
+
+        let payoffHistory: any[] = history[0].populationData.totalPayoffHistory;      
+        
+        let result: number[] = [];
+        let index = 0;
+        payoffHistory.forEach(() => {
+            let val = 0;
+            history.forEach(h => {
+                val+= h.populationData.totalPayoffHistory[index];
+            })
+            const res = val / history.length;
+            result.push(res)
+            
+            index++;
+        });
+
+        populationInfos.totalPayoffHistory = result;
         return populationInfos;
         
         
