@@ -84,6 +84,7 @@ export class StrategyService {
         const wA = Math.max(0, (agentB.wealth - payoffs.payoffB) - (agentA.wealth - payoffs.payoffA));
     
         const wB = Math.max(0, (agentA.wealth - payoffs.payoffA) - (agentB.wealth - payoffs.payoffB));
+        
     
         const maxNetWealthDifference = populationInfo.maxPossibleIndividualWealth - populationInfo.minPossibleIndividualWealth;
     
@@ -91,7 +92,7 @@ export class StrategyService {
         let probabilityA = wA / maxNetWealthDifference || 0;
         let probabilityB = wB / maxNetWealthDifference || 0;
 
-        if (communication) {
+        if (communication) {          
           /**
            * wenn Kommunikation an ist, wird die Wahrscheinlichkeit erhöht zu der Strategie zu wechseln,
            * die von den Nachbarn am meisten gewählt wurde
@@ -108,8 +109,7 @@ export class StrategyService {
         }
     
         // agent a switcht zu agent b Strategy
-        if (Math.random() < probabilityA) {
-          
+        if (Math.random() < probabilityA) {          
           agentA.strategy = this.strategies.find(strategy => strategy.name === bStrategyName);
         }
     

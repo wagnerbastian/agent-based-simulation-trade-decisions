@@ -47,14 +47,14 @@ for (var simulationCounter = 0; simulationCounter < parameters.simulations; simu
     var simulationResults = [];
     var start = new Date().toISOString();
     // Simulationen, mehrere erstellen um damit zu arbeiten.
-    var x_1 = new simulation_1.Simulation(agents, strategyService);
+    var x_1 = new simulation_1.Simulation(agents, strategyService, 1);
     simulationResults.push({
         run: 0,
         history: x_1.runSimulation(data.runs),
         populationData: x_1.populationInfo
     });
     for (var i = 1; i < data.repititions; i++) {
-        var x_2 = new simulation_1.Simulation(agents, strategyService);
+        var x_2 = new simulation_1.Simulation(agents, strategyService, i);
         simulationResults.push({
             run: i,
             history: x_2.runSimulation(data.runs),

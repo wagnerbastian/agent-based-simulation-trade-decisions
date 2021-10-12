@@ -15,6 +15,8 @@ import {
     Analyzer
 } from "./simulation/analyzer";
 import { PopulationInfo } from "./model/population-info";
+import { GraphService } from "./service/graph.service";
+import { NetworkService } from "./service/network.service";
 const parameters = ((data as any).default)
 const fs = require("fs");
 
@@ -36,15 +38,21 @@ for (let simulationCounter = 0; simulationCounter < parameters.simulations; simu
     const strategyService = new StrategyService();
 
     const strategies = strategyService.initStrategies()
-    let agents = simService.initAgents(data.agents, strategies)
+    let agents = simService.initAgents(data.agents, strategies);
+    const networkService = new NetworkService();
+
+    const graphService = new GraphService();
+    networkService.graphService = graphService;
 
     agents = shuffle(agents);
+    networkService.createNetwork(agents);
+    networkService.createCommunicationNetwork(agents);
 
     const simulationResults = [];
 
     const start = new Date().toISOString();
     // Simulationen, mehrere erstellen um damit zu arbeiten.
-    const x = new Simulation(agents, strategyService);
+    const x = new Simulation(agents, strategyService, graphService, networkService, 1);
     simulationResults.push({
         run: 0,
         history: x.runSimulation(data.runs),
@@ -52,7 +60,7 @@ for (let simulationCounter = 0; simulationCounter < parameters.simulations; simu
     });
 
     for (let i = 1; i < data.repititions; i++) {
-        const x = new Simulation(agents, strategyService);
+        const x = new Simulation(agents, strategyService, graphService, networkService, i);
         simulationResults.push({
             run: i,
             history: x.runSimulation(data.runs),
