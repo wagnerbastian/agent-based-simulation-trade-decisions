@@ -3,6 +3,7 @@ import {
     AgentPair
 } from "../model/agent";
 import * as data from '../parameters.json';
+import { DijkstraService } from "./dijkstra.service";
 import {
     NetworkService
 } from "./network.service";
@@ -47,8 +48,31 @@ export class PairingService {
      * @param agents agenten
      * @returns Agentenpaar oder Paar aus null
      */
-    networkPairAgentsForTrade(agents: Agent[]): AgentPair {
+    networkPairAgentsForTrade(agents: Agent[], onlyTradeable: boolean): AgentPair {
 
+            for (let index = 0; index < agents.length; index++) {
+
+                // Agenten der noch nicht gehandelt hat suchen
+                if (!agents[index].didTradeInThisStep) {
+                const a = agents[index];
+                let b = null;
+                // suche Partner aus den nachbarn
+                try {
+                    b = this.searchTradePartner(a, onlyTradeable, agents);
+                } catch(e) {
+                    
+                }
+    
+                return { a, b };
+                }
+            }
+    
+            // alle Agenten haben gehandelt
+            return {a: null, b: null};
+        
+    }
+
+    dijkstraPair(agents: Agent[]): AgentPair {
         for (let index = 0; index < agents.length; index++) {
 
             // Agenten der noch nicht gehandelt hat suchen
@@ -57,7 +81,7 @@ export class PairingService {
             let b = null;
             // suche Partner aus den nachbarn
             try {
-                b = this.searchTradePartner(a);
+                b = this.searchTradePartnerDijkstra(a, agents);
             } catch(e) {
                 
             }
@@ -70,16 +94,35 @@ export class PairingService {
         return {a: null, b: null};
     }
 
-    searchTradePartner(agent: Agent): Agent {
+
+    searchTradePartnerDijkstra(agent: Agent, agents: Agent[]): Agent {
+        const possibleAgents: any[] = agents.filter(a => !a.didTradeInThisStep && a.index !== agent.index);
+        const distances: {distance: number, path: number[]}[] = [];
+        possibleAgents.forEach(a => {
+            distances.push(this.networkService.dijkstra.findShortestPath(this.networkService.graph, agent.node.id, a.node.id));
+        });
+
+        let partner = distances[0];
+        distances.forEach(d => {
+            if (partner.distance > d.distance) { partner = d; }
+        });
+
+        return this.networkService.getAgentFromNodeID(partner.path[partner.path.length -1]);
+    }
+
+    searchTradePartner(agent: Agent, onlyTradeable: boolean, agents: Agent[]): Agent {
         // Wenn der Wert höher als das Kantengewicht ist, geht der Agent eins weiter, sonst handelt er mit seinem Nachbarn.
         const moves = Math.random() > this.parameters.edgeWeight;
 
         // zufälligen Nachbarn aussuchen mit dem gehandelt oder weiter gegangen wird
         
+        if (onlyTradeable) {
+            return this.getTradableNeighbor(agent.node.id, agent.node.neighbors, agent.strategy.name, onlyTradeable, agents);
+        }
 
 
         if (!moves) {
-            const partner = this.getTradableNeighbor(agent.node.neighbors);
+            const partner = this.getTradableNeighbor(agent.node.id, agent.node.neighbors, agent.strategy.name, onlyTradeable, agents);
 
             // Wenn mit einem Partner gehandelt werden kann, wird dieser zurückgegeben.
             if (partner != null) {
@@ -89,14 +132,14 @@ export class PairingService {
                 // zu zufälligen Nachbarn laufen und dort suchen
                 const neighborIndex = Math.floor(Math.random() * agent.node.neighbors.length);
                 const neighbor = this.networkService.getAgentFromNodeID(agent.node.neighbors[neighborIndex]);
-                return this.searchTradePartner(neighbor);
+                return this.searchTradePartner(neighbor, onlyTradeable, agents);
 
             }
         } else {
             // zu zufälligen Nachbarn laufen und dort suchen
             const neighborIndex = Math.floor(Math.random() * agent.node.neighbors.length);
             const neighbor = this.networkService.getAgentFromNodeID(agent.node.neighbors[neighborIndex]);
-            return this.searchTradePartner(neighbor);
+            return this.searchTradePartner(neighbor, onlyTradeable, agents);
         }
     }
 
@@ -105,13 +148,15 @@ export class PairingService {
      * @param neighbors IDs der Nachbar Nodes
      * @returns Agent wenn einer da ist mit dem gehandelt werden kann. Null, wenn mit allen gehandelt wurde
      */
-    getTradableNeighbor(neighbors: number[]): Agent {
-        // Nach Nachbarn suchen die noch nicht gehandelt haben
+    getTradableNeighbor(agentNodeID: number, neighbors: number[], agentStrategyName: string, onlyTradeable: boolean, agents: Agent[]): Agent {
+       if (!onlyTradeable) {
+            // Nach Nachbarn suchen die noch nicht gehandelt haben
         const possibleNeighbors: Agent[] = [];
         neighbors.forEach(n => {
             const a = this.networkService.getAgentFromNodeID(n);
             if (!a.didTradeInThisStep) {
-                possibleNeighbors.push(a);
+                    possibleNeighbors.push(a);
+                
             }
 
         });
@@ -123,6 +168,27 @@ export class PairingService {
             return possibleNeighbors[index];
         }
         return null;
+       } else {
+           // nur partner suchen mit denen gehandelt werden kann...
+            const possibleTradePartners = agents.filter(agent => agent.node.id !== agentNodeID && !agent.didTradeInThisStep && this.canTradeWith(agentStrategyName, agent.strategy.name));
+            const distances: {distance: number, path: number[]}[] = [];
+            possibleTradePartners.forEach(p => {
+                distances.push(this.networkService.dijkstra.findShortestPath(this.networkService.graph, agentNodeID, p.node.id));
+            });
+
+            let partner = distances[0];
+            distances.forEach(element => {
+                if (element.distance < partner.distance) {
+                    partner = element;
+                }
+            });
+            return this.networkService.getAgentFromNodeID(partner.path[partner.path.length - 1])
+       }
+    }
+
+    // gibt true zurück wenn einer ein Consumer und der andere ein Provider ist
+    canTradeWith(agentAStrategyName: string, agentBStrategyName: string): boolean {
+        return (agentAStrategyName.includes('P') && agentBStrategyName.includes('C') || agentAStrategyName.includes('C') && agentBStrategyName.includes('P'));
     }
 
 

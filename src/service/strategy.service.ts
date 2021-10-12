@@ -24,7 +24,7 @@ export class StrategyService {
       }
 
 
-      performStrategySwitchCalculation(agentA: Agent, agentB: Agent, payoffObject: TradePayoff, populationInfo: PopulationInfo): any {
+      performStrategySwitchCalculation(agentA: Agent, agentB: Agent, payoffObject: TradePayoff, populationInfo: PopulationInfo, initialAgentArray: Agent[]): any {
         switch (this.strategy.type) {
           case 'best': {
             this.simpleSwitch(agentA, agentB, payoffObject);
@@ -42,8 +42,8 @@ export class StrategyService {
             break;
           }
           case 'original-wealth-network': {        
-            // Wahrscheinlichkeit wird für jeden Agenten berechnet
-            this.originalSwitchWealth(agentA, agentB, payoffObject, populationInfo, true);
+            // Wahrscheinlichkeit wird für jeden Agenten berechnet, mit kommunikation
+            this.originalSwitchWealth(agentA, agentB, payoffObject, populationInfo, true, initialAgentArray);
             break;
           }
         }
@@ -69,7 +69,7 @@ export class StrategyService {
        * @param payoffs 
        * @param populationInfo 
        */
-      originalSwitchWealth(agentA: Agent, agentB: Agent, payoffs: TradePayoff, populationInfo: PopulationInfo, communication: boolean) {
+      originalSwitchWealth(agentA: Agent, agentB: Agent, payoffs: TradePayoff, populationInfo: PopulationInfo, communication: boolean, agentsAtStartOfStep?: Agent[]) {
         // if (payoffs.payoffA === 0 || payoffs.payoffB === 0) { return; }
     
         // Zur Identifizierung die Strategien speichern
@@ -92,12 +92,12 @@ export class StrategyService {
            * wenn Kommunikation an ist, wird die Wahrscheinlichkeit erhöht zu der Strategie zu wechseln,
            * die von den Nachbarn am meisten gewählt wurde
            */
-          if (this.getNeighborsMostChosenStrategies(agentA).includes(bStrategyName) && probabilityA > 0) {
+          if (this.getNeighborsMostChosenStrategies(agentA, agentsAtStartOfStep).includes(bStrategyName) && probabilityA > 0) {
             // modify Probability of A to switch
             probabilityA += this.communicationModifier;            
           }
 
-          if (this.getNeighborsMostChosenStrategies(agentB).includes(aStrategyName) && probabilityB > 0) {
+          if (this.getNeighborsMostChosenStrategies(agentB, agentsAtStartOfStep).includes(aStrategyName) && probabilityB > 0) {
             // modify Probability of B to switch
             probabilityB += this.communicationModifier;
           }
@@ -153,7 +153,7 @@ export class StrategyService {
         }
       }
 
-      getNeighborsMostChosenStrategies(agent: Agent): string[] {
+      getNeighborsMostChosenStrategies(agent: Agent, agents?: Agent[]): string[] {
         const neighbors: Agent[] = [];
         let TP = 0;
         let UP = 0;
@@ -168,9 +168,17 @@ export class StrategyService {
 
         if (takeDirectNeighbor) {
           agent.communicationNode.neighbors.forEach(n => {
-            neighbors.push(this.networkService.getAgentFromNodeID(n));
+            if (!agents) {
+              neighbors.push(this.networkService.getAgentFromNodeID(n));
+            } else {
+              // agents array wurde übergeben
+              const neighbor = agents.find(a => a.node.id === n);
+              neighbors.push(neighbor);
+            }
+            
           })
         } else {
+
           // Nachbaragenten bekommen
           const travelTo: Agent[] = [];
           agent.communicationNode.neighbors.forEach(n => {
@@ -181,8 +189,15 @@ export class StrategyService {
 
           // Nachbarn des gewählten Agenten in Array pushen. Ausser den eigenen.
           travelTo[index].communicationNode.neighbors.forEach(n => {
+            // alle Nachbarn des Nachbarn ausser den eigenen Agenten auswerten
             if (n !== agent.communicationNode.id) {
+              if (!agents) {
               neighbors.push(this.networkService.getAgentFromNodeID(n));
+            } else {
+              // agents array wurde übergeben
+              const neighbor = agents.find(a => a.node.id === n);
+              neighbors.push(neighbor);
+            }
             }
             
           })

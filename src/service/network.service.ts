@@ -1,12 +1,16 @@
 import { Agent } from "../model/agent";
 
 import * as data from '../parameters.json';
+import { DijkstraService } from "./dijkstra.service";
 
 export class NetworkService {
     parameters = (data as any).default;
     nodes: Node[] = [];
     communicationNodes: Node[] = [];
     agents: Agent[];
+    graph: any;
+
+    dijkstra = new DijkstraService();
 
 
     /**
@@ -26,8 +30,14 @@ export class NetworkService {
         });
 
         agents.forEach(agent => {
-            this.setupNeighbors(agent, agents)
+            this.setupNeighbors(agent, agents);
         });
+
+        this.generateGraphForDistance(agents);
+
+        console.log(this.dijkstra.findShortestPath(this.graph, 1, 8));
+        
+        
     }
     /**
      * Kommunaikationsnetzwerk wird erstellt und Nachbarn zugewiesen
@@ -88,6 +98,23 @@ export class NetworkService {
                     agent.node.neighbors.push(neighbor.node.id);
                 }
             }
+        } else if (agent.node.neighbors.length < this.parameters.minNeighbors) {
+            // Anzahl Nachbarn wird zufällig generiert
+            const neighbors = Math.round(Math.random() * this.parameters.maxNeighbors + 0.5) - agent.node.neighbors.length;
+
+            if (neighbors > 0) {
+                // zufällige Anzahl an Nachbarn vergeben
+            for (let index = 0; index < neighbors; index ++) {
+                // filtern nach Agenten die noch nicht "voll" sind und diesen Agenten noch nicht als Nachbar haben
+                const possibleNeighbors: Agent[] = agents.filter(a => a.index != agent.index && agent.node.neighbors.length < this.parameters.maxNeighbors && !agent.node.neighbors.includes(a.node.id));
+                if (possibleNeighbors.length > 0) {
+                    const neighbor = possibleNeighbors[Math.floor(Math.random() * possibleNeighbors.length)];
+                    neighbor.node.neighbors.push(agent.node.id);
+                    agent.node.neighbors.push(neighbor.node.id);
+                }
+            }
+
+            }
         }
     }
 
@@ -105,6 +132,23 @@ export class NetworkService {
         const result = this.agents.find(a => a.node.id === nodeID);
         return result;
     }
+
+    generateGraphForDistance(agents: Agent[]) {
+        console.log("- starting graph building")
+        let graph: any = {};
+        // A: { start: 1, C: 1, D: 1 },
+        agents.forEach(agent => {
+            let node: any = {}
+            agent.node.neighbors.forEach(n => {
+                node[n] = 1;
+            });
+            graph[agent.node.id] = node;
+        });
+
+        this.graph = graph;
+        console.log("- finished graph building")
+    }
+
 }
 
 
@@ -115,6 +159,7 @@ export class Node {
     id: number;
     agent: number;
     neighbors: number[] = [];
+    paths: Path[] = [];
     
     constructor(id: number) {
         this.id = id;
@@ -128,4 +173,10 @@ export class Node {
     getNeighbors(): number[] {
         return this.neighbors;
     }
+}
+
+export interface Path {
+    destination: Node;
+    start: Node;
+    weight: number;
 }

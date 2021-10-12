@@ -30,6 +30,7 @@ export class Simulation {
 
   parameters = ((parameters as any).default).payoff as PayoffParameter;
   pairingMethod = (parameters as any).default.pairingMethod;
+  data = ((parameters as any).default) as any;
 
 
 
@@ -62,7 +63,14 @@ export class Simulation {
   runSimulation(steps: number): any {
     const totalPayoffHistory: number[] = [];
     for (let index = 0; index < steps; index++) {
+      if (index % 10 === 0 || this.pairingMethod.includes('dijkstra')) {
+        console.log("Step:", index);
+      }
+      
       let totalPayoff = 0;
+
+      // Agents kopieren um immer die Ausgangssituation zu haben
+      const agentsAtStartOfStep: Agent[] = JSON.parse(JSON.stringify(this.agents)) as Agent[];
 
       switch (this.pairingMethod) {
         case 'simple': {
@@ -80,7 +88,7 @@ export class Simulation {
               totalPayoff += payoffObject.payoffB;
     
               // Strategiewechsel
-              this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo);
+              this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo, agentsAtStartOfStep);
             }
     
           }
@@ -89,7 +97,7 @@ export class Simulation {
           for (let i = 0; i < this.agents.length - 1; i++) {
 
             // Agenten filtern die in diesem Step noch nicht gehandelt haben
-            const agentsToTrade: AgentPair = this.pairingService.networkPairAgentsForTrade(this.agents);
+            const agentsToTrade: AgentPair = this.pairingService.networkPairAgentsForTrade(this.agents, false);
     
             // prüfen dass beide Agenten ausgewählt wurden
             if (agentsToTrade.a && agentsToTrade.b) {
@@ -100,7 +108,53 @@ export class Simulation {
               totalPayoff += payoffObject.payoffB;
     
               // Strategiewechsel
-              this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo);
+              this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo, agentsAtStartOfStep);
+            }
+    
+          }
+        }
+        case 'dijkstra': {
+          for (let i = 0; i < this.agents.length - 1; i++) {
+
+            // Agenten filtern die in diesem Step noch nicht gehandelt haben
+            const agentsToTrade: AgentPair = this.pairingService.networkPairAgentsForTrade(this.agents, true);
+
+            // console.log(agentsToTrade);
+            
+    
+            // prüfen dass beide Agenten ausgewählt wurden
+            if (agentsToTrade.a && agentsToTrade.b) {
+    
+              // Handel ausführen
+              const payoffObject = this.trade.performTrade(agentsToTrade.a, agentsToTrade.b);
+              totalPayoff += payoffObject.payoffA;
+              totalPayoff += payoffObject.payoffB;
+    
+              // Strategiewechsel
+              this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo, agentsAtStartOfStep);
+            }
+    
+          }
+        }
+        case 'dijkstra-tradeable': {
+          for (let i = 0; i < this.agents.length - 1; i++) {
+
+            // Agenten filtern die in diesem Step noch nicht gehandelt haben
+            const agentsToTrade: AgentPair = this.pairingService.networkPairAgentsForTrade(this.agents, true);
+
+            // console.log(agentsToTrade);
+            
+    
+            // prüfen dass beide Agenten ausgewählt wurden
+            if (agentsToTrade.a && agentsToTrade.b) {
+    
+              // Handel ausführen
+              const payoffObject = this.trade.performTrade(agentsToTrade.a, agentsToTrade.b);
+              totalPayoff += payoffObject.payoffA;
+              totalPayoff += payoffObject.payoffB;
+    
+              // Strategiewechsel
+              this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo, agentsAtStartOfStep);
             }
     
           }
@@ -117,7 +171,9 @@ export class Simulation {
       // Population Info updaten
       this.populationInfo.updatePopulationInfo(this.agents, index + 1);
       
-
+      if (this.data.shuffleAgents) {
+        this.agents = this.shuffle(this.agents);
+      }
 
       this.agents.forEach(agent => {
         agent.didTradeInThisStep = false;
@@ -166,6 +222,16 @@ export class Simulation {
     })
     return result;
   }
+
+
+  // Fisher-Yates shuffle algorithmus
+  shuffle(a: any[]) {
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
   
 }
 

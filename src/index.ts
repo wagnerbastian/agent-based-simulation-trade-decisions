@@ -18,6 +18,14 @@ import { PopulationInfo } from "./model/population-info";
 const parameters = ((data as any).default)
 const fs = require("fs");
 
+function shuffle (a: any[]) {
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
 console.log(`--- Starting ${parameters.simulations} Simulations with ${parameters.agents} Agents, ${parameters.runs} Runs, ${parameters.repititions} Repitions ---`);
 
 for (let simulationCounter = 0; simulationCounter < parameters.simulations; simulationCounter++) {
@@ -28,7 +36,9 @@ for (let simulationCounter = 0; simulationCounter < parameters.simulations; simu
     const strategyService = new StrategyService();
 
     const strategies = strategyService.initStrategies()
-    const agents = simService.initAgents(data.agents, strategies)
+    let agents = simService.initAgents(data.agents, strategies)
+
+    agents = shuffle(agents);
 
     const simulationResults = [];
 

@@ -1,6 +1,6 @@
 {
-    "agents": 500,
-    "runs": 6000,
+    "agents": 200,
+    "runs": 3000,
     "repititions": 1,
     "simulations": 1,
     "extendedLogging": false,
@@ -14,7 +14,7 @@
         ]
     },
     "payoff": {
-        "r": 33,
+        "r": 39,
         "temp": 40,
         "s": 20,
         "x": 10
@@ -27,6 +27,7 @@
     "edgeWeight": 0.9,
     "pairingMethod": "network",
     "edgeWeightCommunication": 0.8,
-    "communicationModifier": 0.1,
-    "maxCommunicationNeighbors": 20
+    "communicationModifier": 0.0,
+    "maxCommunicationNeighbors": 20,
+    "shuffleAgents": true
 }
