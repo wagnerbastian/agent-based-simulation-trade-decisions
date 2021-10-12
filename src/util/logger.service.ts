@@ -35,8 +35,8 @@ export class Logger {
         try {
             fs.mkdirSync('logs');
         } catch(e) {}
-        // fs.writeFile("results.json", JSON.stringify(text), function(){});
-        fs.writeFile("../masterarbeit-visualisierung/src/app/results.json", JSON.stringify(text), function(){});
+        fs.writeFile("results.json", JSON.stringify(text), function(){});
+        // fs.writeFile("../masterarbeit-visualisierung/src/app/results.json", JSON.stringify(text), function(){});
         
 
         if (parameters.extendedLogging) {
@@ -68,8 +68,8 @@ export class Logger {
         try {
             fs.mkdirSync('logs');
         } catch(e) {}
-        // fs.writeFile("run.json", JSON.stringify(text), function(){})
-        fs.writeFile("../masterarbeit-visualisierung/src/app/run.json", JSON.stringify(text), function(){})
+        fs.writeFile("run.json", JSON.stringify(text), function(){})
+        // fs.writeFile("../masterarbeit-visualisierung/src/app/run.json", JSON.stringify(text), function(){})
 
         if (parameters.extendedLogging) {
             fs.writeFile(`./logs/run-${start.split(':').join('-')}.json`, JSON.stringify(text), function(){});
