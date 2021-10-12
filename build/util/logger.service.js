@@ -50,7 +50,7 @@ var Logger = /** @class */ (function () {
         }
         catch (e) { }
         fs.writeFile("results.json", JSON.stringify(text), function () { });
-        // fs.writeFile("../masterarbeit-visualisierung/src/app/results.json", JSON.stringify(text), function(){});
+        fs.writeFile("../masterarbeit-visualisierung/src/app/results.json", JSON.stringify(text), function () { });
         if (parameters.extendedLogging) {
             fs.writeFile("./logs/results-" + start.split(':').join('-') + ".json", JSON.stringify(text), function () { });
         }
@@ -78,7 +78,7 @@ var Logger = /** @class */ (function () {
         }
         catch (e) { }
         fs.writeFile("run.json", JSON.stringify(text), function () { });
-        // fs.writeFile("../masterarbeit-visualisierung/src/app/run.json", JSON.stringify(text), function(){})
+        fs.writeFile("../masterarbeit-visualisierung/src/app/run.json", JSON.stringify(text), function () { });
         if (parameters.extendedLogging) {
             fs.writeFile("./logs/run-" + start.split(':').join('-') + ".json", JSON.stringify(text), function () { });
         }

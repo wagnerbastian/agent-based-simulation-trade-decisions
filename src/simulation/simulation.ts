@@ -17,6 +17,7 @@ import * as parameters from '../parameters.json';
 import { PairingService } from "../service/pairing.service";
 import { NetworkService } from "../service/network.service";
 import { Logger } from "../util/logger.service";
+import { GraphService } from "../service/graph.service";
 
 export class Simulation {
   agents: Agent[];
@@ -25,8 +26,8 @@ export class Simulation {
   strategyHistory: any[] = [];
   populationInfo: PopulationInfo;
   pairingService: PairingService;
-  networkService = new NetworkService();
   logger = new Logger();
+  graphService: GraphService;
 
   parameters = ((parameters as any).default).payoff as PayoffParameter;
   pairingMethod = (parameters as any).default.pairingMethod;
@@ -34,9 +35,12 @@ export class Simulation {
 
 
 
-  constructor(agents: Agent[], private strategyService: StrategyService) {
+  constructor(agents: Agent[], private strategyService: StrategyService, graphService: GraphService, public networkService: NetworkService, private repitition: number) {
+    this.strategyService.networkService = this.networkService;
     this.pairingService = new PairingService();
     this.strategies = this.strategyService.initStrategies();
+    this.graphService = graphService;
+    this.pairingService.graphService = this.graphService;
 
     // copy Agents damit jede Simulation die gleichen hat
     this.agents = JSON.parse(JSON.stringify(agents)) as Agent[];
@@ -45,10 +49,10 @@ export class Simulation {
     this.populationInfo = new PopulationInfo(this.trade);
 
     // Netzwerk wird gebaut und Nachbarn zugewiesen
-    this.networkService.createNetwork(this.agents);
+    // this.networkService.createNetwork(this.agents);
 
     // Kommunikationsnetzwerk wird gebaut und Nachbarn zugewiesen
-    this.networkService.createCommunicationNetwork(this.agents);
+    // this.networkService.createCommunicationNetwork(this.agents);
 
     // Pairingservice kriegt NetzwerkInfo übergeben
     this.pairingService.networkService = this.networkService;
@@ -63,7 +67,7 @@ export class Simulation {
   runSimulation(steps: number): any {
     const totalPayoffHistory: number[] = [];
     let success = true;
-    console.log("- Starting Simulation, be patient.")
+    console.log("- Starting Simulation " + this.repitition + ", be patient.")
     for (let index = 0; index < steps; index++) {
       const start = new Date();
             
@@ -203,9 +207,9 @@ export class Simulation {
       const end = new Date();
       const duration = (end.getTime() - start.getTime()) / 1000;
       if (index % 10 === 0) {
-        console.log("Step:", index, 'Duration:', duration);
+        console.log("Rep: " + this.repitition + " Step:", index, 'Duration:', duration);
       } else if ((this.pairingMethod as string).includes('dijkstra') && duration > 2) {
-        console.log("Step:", index, 'Duration:', duration);
+        console.log("Rep: " + this.repitition + " Step:", index, 'Duration:', duration);
       }
     }
     this.populationInfo.totalPayoffHistory = totalPayoffHistory;

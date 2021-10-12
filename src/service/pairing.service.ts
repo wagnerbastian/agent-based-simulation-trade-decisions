@@ -4,6 +4,7 @@ import {
 } from "../model/agent";
 import * as data from '../parameters.json';
 import { DijkstraService } from "./dijkstra.service";
+import { GraphService } from "./graph.service";
 import {
     NetworkService
 } from "./network.service";
@@ -11,6 +12,7 @@ import {
 export class PairingService {
     parameters = (data as any).default;
     networkService: NetworkService;
+    graphService: GraphService;
 
 
     // wählt 2 zufällige Agenten aus, die noch nicht gehandelt haben
@@ -110,7 +112,7 @@ export class PairingService {
         const distances: {distance: number, agent: Agent}[] = [];
         const distance = this.getMinDijkstraDistance(this.parameters.edgeWeight);        
         possibleAgents.forEach(a => {
-            const distance = this.networkService.getdistanceBetweenAgents(agent, a);
+            const distance = this.graphService.getdistanceBetweenAgents(agent, a);
             distances.push({agent: a, distance});            
         });
 
@@ -191,7 +193,7 @@ export class PairingService {
             const distances: {distance: number, agent: Agent}[] = [];
             possibleTradePartners.forEach(p => {
                 const agent = this.networkService.getAgentFromNodeID(agentNodeID);
-                const distance = this.networkService.getdistanceBetweenAgents(agent, p);
+                const distance = this.graphService.getdistanceBetweenAgents(agent, p);
                 distances.push({distance, agent: p})
             });
 

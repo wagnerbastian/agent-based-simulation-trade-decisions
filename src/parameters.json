@@ -1,7 +1,7 @@
 {
-    "agents": 20,
-    "runs": 500,
-    "repititions": 1,
+    "agents": 100,
+    "runs": 50,
+    "repititions": 3,
     "simulations": 1,
     "extendedLogging": false,
     "decisionStrategy" : {
@@ -14,7 +14,7 @@
         ]
     },
     "payoff": {
-        "r": 39,
+        "r": 33,
         "temp": 40,
         "s": 20,
         "x": 10
@@ -24,10 +24,10 @@
     },
     "maxNeighbors": 10,
     "minNeighbors": 3,
-    "edgeWeight": 0.3,
+    "edgeWeight": 0.8,
     "pairingMethod": "dijkstra",
     "edgeWeightCommunication": 0.8,
-    "communicationModifier": 0.0,
+    "communicationModifier": 0.1,
     "maxCommunicationNeighbors": 20,
     "shuffleAgents": true
 }

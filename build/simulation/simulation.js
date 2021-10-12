@@ -27,8 +27,9 @@ var pairing_service_1 = require("../service/pairing.service");
 var network_service_1 = require("../service/network.service");
 var logger_service_1 = require("../util/logger.service");
 var Simulation = /** @class */ (function () {
-    function Simulation(agents, strategyService) {
+    function Simulation(agents, strategyService, repitition) {
         this.strategyService = strategyService;
+        this.repitition = repitition;
         this.strategyHistory = [];
         this.networkService = new network_service_1.NetworkService();
         this.logger = new logger_service_1.Logger();
@@ -54,6 +55,7 @@ var Simulation = /** @class */ (function () {
     Simulation.prototype.runSimulation = function (steps) {
         var totalPayoffHistory = [];
         var success = true;
+        console.log("- Starting Simulation " + this.repitition + ", be patient.");
         for (var index = 0; index < steps; index++) {
             var start = new Date();
             var totalPayoff = 0;
@@ -152,8 +154,12 @@ var Simulation = /** @class */ (function () {
                 agent.didTradeInThisStep = false;
             });
             var end = new Date();
+            var duration = (end.getTime() - start.getTime()) / 1000;
             if (index % 10 === 0) {
-                console.log("Step:", index, 'Duration:', (end.getTime() - start.getTime()) / 1000);
+                console.log("Rep: " + this.repitition + " Step:", index, 'Duration:', duration);
+            }
+            else if (this.pairingMethod.includes('dijkstra') && duration > 2) {
+                console.log("Rep: " + this.repitition + " Step:", index, 'Duration:', duration);
             }
         }
         this.populationInfo.totalPayoffHistory = totalPayoffHistory;
