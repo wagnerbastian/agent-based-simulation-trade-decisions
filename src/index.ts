@@ -48,9 +48,6 @@ for (let simulationCounter = 0; simulationCounter < parameters.simulations; simu
     networkService.createNetwork(agents);
     networkService.createCommunicationNetwork(agents);
 
-    console.log(agents)
-    
-
     const simulationResults = [];
 
     const start = new Date().toISOString();

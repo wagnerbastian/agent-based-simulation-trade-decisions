@@ -69,6 +69,7 @@ export class Simulation {
     let success = true;
     console.log("- Starting Simulation " + this.repitition + ", be patient.")
     for (let index = 0; index < steps; index++) {
+
       const start = new Date();
             
       let totalPayoff = 0;
@@ -93,6 +94,7 @@ export class Simulation {
     
               // Strategiewechsel
               success = this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo, agentsAtStartOfStep);
+              
               if (!success) {
                 console.log("######## Exit simulation");
                 return;
@@ -101,6 +103,7 @@ export class Simulation {
             }
     
           }
+          break;
         }
         case 'network': {
           for (let i = 0; i < this.agents.length - 1; i++) {
@@ -126,6 +129,7 @@ export class Simulation {
             }
     
           }
+          break;
         }
         case 'dijkstra': {
           for (let i = 0; i < this.agents.length - 1; i++) {
@@ -155,10 +159,10 @@ export class Simulation {
             }
     
           }
+          break;
         }
-        case 'network-tradeable': {
-          for (let i = 0; i < this.agents.length - 1; i++) {
-
+        case 'network-tradeable': {          
+          for (let i = 0; i < this.agents.length - 1; i++) {            
             // Agenten filtern die in diesem Step noch nicht gehandelt haben
             const agentsToTrade: AgentPair = this.pairingService.networkPairAgentsForTrade(this.agents, true);
 
@@ -183,6 +187,7 @@ export class Simulation {
             }
     
           }
+          break;
         }
         
       }
@@ -207,7 +212,7 @@ export class Simulation {
       const end = new Date();
       const duration = (end.getTime() - start.getTime()) / 1000;
       if (index % 10 === 0) {
-        console.log("Rep: " + this.repitition + " Step:", index, 'Duration:', duration);
+        // console.log("Rep: " + this.repitition + " Step:", index, 'Duration:', duration);
       } else if ((this.pairingMethod as string).includes('dijkstra') && duration > 2) {
         console.log("Rep: " + this.repitition + " Step:", index, 'Duration:', duration);
       }

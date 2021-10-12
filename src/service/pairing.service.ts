@@ -50,10 +50,9 @@ export class PairingService {
      * @param agents agenten
      * @returns Agentenpaar oder Paar aus null
      */
-    networkPairAgentsForTrade(agents: Agent[], onlyTradeable: boolean): AgentPair {
+    networkPairAgentsForTrade(agents: Agent[], onlyTradeable: boolean): AgentPair {        
 
             for (let index = 0; index < agents.length; index++) {
-
                 // Agenten der noch nicht gehandelt hat suchen
                 if (!agents[index].didTradeInThisStep) {
                     
@@ -136,6 +135,8 @@ export class PairingService {
         // zufälligen Nachbarn aussuchen mit dem gehandelt oder weiter gegangen wird
         
         if (onlyTradeable) {
+            // console.log("only trade");
+            
             return this.getTradableNeighbor(agent.node.id, agent.node.neighbors, agent.strategy.name, onlyTradeable, agents);
         }
 
@@ -171,8 +172,12 @@ export class PairingService {
        if (!onlyTradeable) {
             // Nach Nachbarn suchen die noch nicht gehandelt haben
         const possibleNeighbors: Agent[] = [];
+        
+        
         neighbors.forEach(n => {
             const a = this.networkService.getAgentFromNodeID(n);
+            
+            
             if (!a.didTradeInThisStep) {
                     possibleNeighbors.push(a);
                 
@@ -184,9 +189,13 @@ export class PairingService {
             // es ist ein Nachbar da der handeln kann
             // zufälligen Nachbarn zurückgeben.
             const index = Math.floor(Math.random() * possibleNeighbors.length);
+            
             return possibleNeighbors[index];
         }
-        return null;
+
+        const availableAgents = agents.filter(agent => !agent.didTradeInThisStep);
+        return availableAgents[Math.floor(Math.random() * availableAgents.length)];
+        
        } else {
            // nur partner suchen mit denen gehandelt werden kann...
             const possibleTradePartners = agents.filter(agent => agent.node.id !== agentNodeID && !agent.didTradeInThisStep && this.canTradeWith(agentStrategyName, agent.strategy.name));
