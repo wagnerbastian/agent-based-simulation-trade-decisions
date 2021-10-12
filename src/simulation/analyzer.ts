@@ -14,6 +14,7 @@ export class Analyzer {
     }
 
     analyzePopulationInfo(historyIn: any[]): PopulationInfo {
+        if (!historyIn || historyIn.length === 0 || !historyIn[0].history) { return; }
         const history = JSON.parse(JSON.stringify(historyIn)) as any[];        
         
         let populationInfos: PopulationInfo = history[0].populationData;
@@ -77,6 +78,8 @@ export class Analyzer {
     }
 
     analyzeResults(historyIn: any[]): StrategyDistribution {
+        if (!historyIn || historyIn.length === 0 || !historyIn[0].history) { return; }
+        
         const history = JSON.parse(JSON.stringify(historyIn)) as any[];
         let result: any[] = [];
         

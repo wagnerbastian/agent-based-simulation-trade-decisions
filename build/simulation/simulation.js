@@ -34,6 +34,7 @@ var Simulation = /** @class */ (function () {
         this.logger = new logger_service_1.Logger();
         this.parameters = (parameters.default).payoff;
         this.pairingMethod = parameters.default.pairingMethod;
+        this.data = (parameters.default);
         this.pairingService = new pairing_service_1.PairingService();
         this.strategies = this.strategyService.initStrategies();
         // copy Agents damit jede Simulation die gleichen hat
@@ -43,12 +44,21 @@ var Simulation = /** @class */ (function () {
         this.populationInfo = new population_info_1.PopulationInfo(this.trade);
         // Netzwerk wird gebaut und Nachbarn zugewiesen
         this.networkService.createNetwork(this.agents);
+        // Kommunikationsnetzwerk wird gebaut und Nachbarn zugewiesen
+        this.networkService.createCommunicationNetwork(this.agents);
         // Pairingservice kriegt NetzwerkInfo übergeben
         this.pairingService.networkService = this.networkService;
+        this.strategyService.networkService = this.networkService;
         // this.pairingService.networkPairAgentsForTrade(this.agents);
     }
     Simulation.prototype.runSimulation = function (steps) {
+        var totalPayoffHistory = [];
+        var success = true;
         for (var index = 0; index < steps; index++) {
+            var start = new Date();
+            var totalPayoff = 0;
+            // Agents kopieren um immer die Ausgangssituation zu haben
+            var agentsAtStartOfStep = JSON.parse(JSON.stringify(this.agents));
             switch (this.pairingMethod) {
                 case 'simple': {
                     for (var i = 0; i < this.agents.length / 2; i++) {
@@ -58,34 +68,102 @@ var Simulation = /** @class */ (function () {
                         if (agentsToTrade.a && agentsToTrade.b) {
                             // Handel ausführen
                             var payoffObject = this.trade.performTrade(agentsToTrade.a, agentsToTrade.b);
+                            totalPayoff += payoffObject.payoffA;
+                            totalPayoff += payoffObject.payoffB;
                             // Strategiewechsel
-                            this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo);
+                            success = this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo, agentsAtStartOfStep);
+                            if (!success) {
+                                console.log("######## Exit simulation");
+                                return;
+                            }
                         }
                     }
                 }
                 case 'network': {
                     for (var i = 0; i < this.agents.length - 1; i++) {
                         // Agenten filtern die in diesem Step noch nicht gehandelt haben
-                        var agentsToTrade = this.pairingService.networkPairAgentsForTrade(this.agents);
+                        var agentsToTrade = this.pairingService.networkPairAgentsForTrade(this.agents, false);
                         // prüfen dass beide Agenten ausgewählt wurden
                         if (agentsToTrade.a && agentsToTrade.b) {
                             // Handel ausführen
                             var payoffObject = this.trade.performTrade(agentsToTrade.a, agentsToTrade.b);
+                            totalPayoff += payoffObject.payoffA;
+                            totalPayoff += payoffObject.payoffB;
                             // Strategiewechsel
-                            this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo);
+                            success = this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo, agentsAtStartOfStep);
+                            if (!success) {
+                                console.log("######## Exit simulation");
+                                return;
+                            }
+                        }
+                    }
+                }
+                case 'dijkstra': {
+                    for (var i = 0; i < this.agents.length - 1; i++) {
+                        // Agenten filtern die in diesem Step noch nicht gehandelt haben
+                        // const agentsToTrade: AgentPair = this.pairingService.networkPairAgentsForTrade(this.agents, false);
+                        var agentsToTrade = this.pairingService.dijkstraPair(this.agents);
+                        // console.log(agentsToTrade);
+                        // prüfen dass beide Agenten ausgewählt wurden
+                        if (agentsToTrade.a && agentsToTrade.b) {
+                            // Handel ausführen
+                            var payoffObject = this.trade.performTrade(agentsToTrade.a, agentsToTrade.b);
+                            totalPayoff += payoffObject.payoffA;
+                            totalPayoff += payoffObject.payoffB;
+                            // Strategiewechsel
+                            success = this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo, agentsAtStartOfStep);
+                            if (!success) {
+                                console.log("######## Exit simulation");
+                                return;
+                            }
+                        }
+                    }
+                }
+                case 'network-tradeable': {
+                    for (var i = 0; i < this.agents.length - 1; i++) {
+                        // Agenten filtern die in diesem Step noch nicht gehandelt haben
+                        var agentsToTrade = this.pairingService.networkPairAgentsForTrade(this.agents, true);
+                        // console.log(agentsToTrade);
+                        // prüfen dass beide Agenten ausgewählt wurden
+                        if (agentsToTrade.a && agentsToTrade.b) {
+                            // Handel ausführen
+                            var payoffObject = this.trade.performTrade(agentsToTrade.a, agentsToTrade.b);
+                            totalPayoff += payoffObject.payoffA;
+                            totalPayoff += payoffObject.payoffB;
+                            // Strategiewechsel
+                            success = this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo, agentsAtStartOfStep);
+                            if (!success) {
+                                console.log("######## Exit simulation");
+                                return;
+                            }
                         }
                     }
                 }
             }
+            totalPayoffHistory.push(totalPayoff);
             // Verlauf der Strategies anlegen:
             this.strategyHistory.push(this.countStrategies(this.agents));
             // Population Info updaten
             this.populationInfo.updatePopulationInfo(this.agents, index + 1);
+            if (this.data.shuffleAgents) {
+                this.agents = this.shuffle(this.agents);
+            }
             this.agents.forEach(function (agent) {
                 agent.didTradeInThisStep = false;
             });
+            var end = new Date();
+            if (index % 10 === 0) {
+                console.log("Step:", index, 'Duration:', (end.getTime() - start.getTime()) / 1000);
+            }
         }
-        console.log(this.strategyHistory[this.strategyHistory.length - 1]);
+        this.populationInfo.totalPayoffHistory = totalPayoffHistory;
+        console.log('\nRepitions initial distribution:\n', this.strategyHistory[0]);
+        console.log('\nRepitions last distribution:\n', this.strategyHistory[this.strategyHistory.length - 1], '\n');
+        console.log('Saved steps: ', this.strategyHistory.length);
+        var w = 0;
+        this.agents.forEach(function (agent) {
+            w += agent.wealth;
+        });
         return this.strategyHistory;
     };
     Simulation.prototype.countStrategies = function (agents) {
@@ -116,6 +194,15 @@ var Simulation = /** @class */ (function () {
             }
         });
         return result;
+    };
+    // Fisher-Yates shuffle algorithmus
+    Simulation.prototype.shuffle = function (a) {
+        var _a;
+        for (var i = a.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            _a = [a[j], a[i]], a[i] = _a[0], a[j] = _a[1];
+        }
+        return a;
     };
     return Simulation;
 }());

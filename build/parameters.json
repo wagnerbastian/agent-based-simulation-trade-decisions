@@ -1,11 +1,11 @@
 {
-    "agents": 1250,
+    "agents": 500,
     "runs": 5000,
-    "repititions": 25,
+    "repititions": 1,
     "simulations": 1,
-    "extendedLogging": true,
+    "extendedLogging": false,
     "decisionStrategy": {
-        "type": "original-wealth",
+        "decisionStrategy": "original-wealth-communication-network",
         "distribution": [
             0.25,
             0.5,
@@ -22,8 +22,12 @@
     "analytics": {
         "analyzePercentage": 0.25
     },
-    "maxNeighbors": 5,
-    "minNeighbors": 1,
-    "edgeWeight": 0.8,
-    "pairingMethod": "network"
+    "maxNeighbors": 10,
+    "minNeighbors": 3,
+    "edgeWeight": 0.3,
+    "pairingMethod": "dijkstra",
+    "edgeWeightCommunication": 0.8,
+    "communicationModifier": 0.0,
+    "maxCommunicationNeighbors": 20,
+    "shuffleAgents": true
 }

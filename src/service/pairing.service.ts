@@ -54,6 +54,8 @@ export class PairingService {
 
                 // Agenten der noch nicht gehandelt hat suchen
                 if (!agents[index].didTradeInThisStep) {
+                    
+                    
                 const a = agents[index];
                 let b = null;
                 // suche Partner aus den nachbarn
@@ -69,7 +71,14 @@ export class PairingService {
     
             // alle Agenten haben gehandelt
             return {a: null, b: null};
-        
+    }
+
+    getMinDijkstraDistance(edgeWeight: number,currentDistance: number = 0): number {
+        currentDistance++;
+        if (Math.random() > edgeWeight) {
+            return this.getMinDijkstraDistance(edgeWeight, currentDistance);
+        }
+        return currentDistance;
     }
 
     dijkstraPair(agents: Agent[]): AgentPair {
@@ -77,6 +86,7 @@ export class PairingService {
 
             // Agenten der noch nicht gehandelt hat suchen
             if (!agents[index].didTradeInThisStep) {
+                
             const a = agents[index];
             let b = null;
             // suche Partner aus den nachbarn
@@ -95,19 +105,26 @@ export class PairingService {
     }
 
 
-    searchTradePartnerDijkstra(agent: Agent, agents: Agent[]): Agent {
+    searchTradePartnerDijkstra(agent: Agent, agents: Agent[]): Agent {        
         const possibleAgents: any[] = agents.filter(a => !a.didTradeInThisStep && a.index !== agent.index);
-        const distances: {distance: number, path: number[]}[] = [];
+        const distances: {distance: number, agent: Agent}[] = [];
+        const distance = this.getMinDijkstraDistance(this.parameters.edgeWeight);        
         possibleAgents.forEach(a => {
-            distances.push(this.networkService.dijkstra.findShortestPath(this.networkService.graph, agent.node.id, a.node.id));
+            const distance = this.networkService.getdistanceBetweenAgents(agent, a);
+            distances.push({agent: a, distance});            
         });
 
-        let partner = distances[0];
-        distances.forEach(d => {
-            if (partner.distance > d.distance) { partner = d; }
-        });
+        let partner: {distance: number, agent: Agent} = null;
 
-        return this.networkService.getAgentFromNodeID(partner.path[partner.path.length -1]);
+        for (let index = distance; index >= 0; index--) {
+            for (let i = 0; i < distances.length; i++) {
+                if (distances[i].distance === index && partner == null) {
+                    partner = distances[i];
+                }
+            } 
+        }
+
+        return partner.agent;
     }
 
     searchTradePartner(agent: Agent, onlyTradeable: boolean, agents: Agent[]): Agent {
@@ -171,9 +188,11 @@ export class PairingService {
        } else {
            // nur partner suchen mit denen gehandelt werden kann...
             const possibleTradePartners = agents.filter(agent => agent.node.id !== agentNodeID && !agent.didTradeInThisStep && this.canTradeWith(agentStrategyName, agent.strategy.name));
-            const distances: {distance: number, path: number[]}[] = [];
+            const distances: {distance: number, agent: Agent}[] = [];
             possibleTradePartners.forEach(p => {
-                distances.push(this.networkService.dijkstra.findShortestPath(this.networkService.graph, agentNodeID, p.node.id));
+                const agent = this.networkService.getAgentFromNodeID(agentNodeID);
+                const distance = this.networkService.getdistanceBetweenAgents(agent, p);
+                distances.push({distance, agent: p})
             });
 
             let partner = distances[0];
@@ -182,7 +201,7 @@ export class PairingService {
                     partner = element;
                 }
             });
-            return this.networkService.getAgentFromNodeID(partner.path[partner.path.length - 1])
+            return partner.agent;
        }
     }
 

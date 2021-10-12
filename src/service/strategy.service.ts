@@ -24,8 +24,8 @@ export class StrategyService {
       }
 
 
-      performStrategySwitchCalculation(agentA: Agent, agentB: Agent, payoffObject: TradePayoff, populationInfo: PopulationInfo, initialAgentArray: Agent[]): any {
-        switch (this.strategy.type) {
+      performStrategySwitchCalculation(agentA: Agent, agentB: Agent, payoffObject: TradePayoff, populationInfo: PopulationInfo, initialAgentArray: Agent[]): boolean {
+        switch (this.strategy.decisionStrategy) {
           case 'best': {
             this.simpleSwitch(agentA, agentB, payoffObject);
             break;
@@ -41,14 +41,18 @@ export class StrategyService {
             this.originalSwitchWealth(agentA, agentB, payoffObject, populationInfo, false);
             break;
           }
-          case 'original-wealth-network': {        
+          case 'original-wealth-communication-network': {        
             // Wahrscheinlichkeit wird für jeden Agenten berechnet, mit kommunikation
             this.originalSwitchWealth(agentA, agentB, payoffObject, populationInfo, true, initialAgentArray);
             break;
           }
+          default: {
+            console.log("### Wrong Decision Strategy ###");
+            return false;
+          }
         }
     
-        return null;
+        return true;
       }
     
     
@@ -227,5 +231,5 @@ export class StrategyService {
 
 interface DecisionStrategy {
     distribution: number[];
-    type: string;
+    decisionStrategy: string;
 }

@@ -29,6 +29,9 @@ var Logger = /** @class */ (function () {
         fs.writeFile(title, data, function () { });
     };
     Logger.prototype.logHistory = function (start, end, simulationResults) {
+        if (!simulationResults || simulationResults.length === 0 || !simulationResults[0].history) {
+            return;
+        }
         var parameters = (data.default);
         var duration = (new Date(end).getTime() - new Date(start).getTime()) / 1000;
         var text = {
@@ -38,7 +41,7 @@ var Logger = /** @class */ (function () {
             agents: data.agents,
             iterations: data.runs,
             runs: data.repititions,
-            strategy: data.decisionStrategy.type,
+            strategy: data.decisionStrategy.decisionStrategy,
             pairingMethod: data.pairingMethod,
             results: simulationResults
         };
@@ -47,11 +50,15 @@ var Logger = /** @class */ (function () {
         }
         catch (e) { }
         fs.writeFile("results.json", JSON.stringify(text), function () { });
+        // fs.writeFile("../masterarbeit-visualisierung/src/app/results.json", JSON.stringify(text), function(){});
         if (parameters.extendedLogging) {
             fs.writeFile("./logs/results-" + start.split(':').join('-') + ".json", JSON.stringify(text), function () { });
         }
     };
-    Logger.prototype.logRun = function (start, end, results) {
+    Logger.prototype.logRun = function (start, end, results, populationInfo) {
+        if (!populationInfo) {
+            return;
+        }
         var parameters = (data.default);
         var duration = (new Date(end).getTime() - new Date(start).getTime()) / 1000;
         var text = {
@@ -61,8 +68,9 @@ var Logger = /** @class */ (function () {
             agents: data.agents,
             iterations: data.runs,
             runs: data.repititions,
-            strategy: data.decisionStrategy.type,
-            pairingMethid: data.pairingMethod,
+            strategy: data.decisionStrategy.decisionStrategy,
+            pairingMethod: data.pairingMethod,
+            populationInfo: populationInfo,
             results: results
         };
         try {
@@ -70,9 +78,26 @@ var Logger = /** @class */ (function () {
         }
         catch (e) { }
         fs.writeFile("run.json", JSON.stringify(text), function () { });
+        // fs.writeFile("../masterarbeit-visualisierung/src/app/run.json", JSON.stringify(text), function(){})
         if (parameters.extendedLogging) {
             fs.writeFile("./logs/run-" + start.split(':').join('-') + ".json", JSON.stringify(text), function () { });
         }
+    };
+    Logger.prototype.logGraphInfo = function (agents) {
+        var connections = [];
+        agents.forEach(function (agent) {
+            agent.node.neighbors.forEach(function (n) {
+                connections.push({
+                    a: agent.node.id,
+                    b: n
+                });
+            });
+        });
+        var text = "";
+        connections.forEach(function (connection) {
+            text += connection.a + " " + connection.b + "\n";
+        });
+        fs.writeFile("graph.txt", text, function () { });
     };
     return Logger;
 }());

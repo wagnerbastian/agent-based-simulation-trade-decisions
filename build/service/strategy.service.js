@@ -25,6 +25,8 @@ var parameters = __importStar(require("../parameters.json"));
 var StrategyService = /** @class */ (function () {
     function StrategyService() {
         this.strategy = parameters.default.decisionStrategy;
+        this.communicationModifier = parameters.default.communicationModifier;
+        this.communicationPathWeight = parameters.default.edgeWeightCommunication;
     }
     StrategyService.prototype.initStrategies = function () {
         var strategies = [];
@@ -35,8 +37,8 @@ var StrategyService = /** @class */ (function () {
         this.strategies = strategies;
         return strategies;
     };
-    StrategyService.prototype.performStrategySwitchCalculation = function (agentA, agentB, payoffObject, populationInfo) {
-        switch (this.strategy.type) {
+    StrategyService.prototype.performStrategySwitchCalculation = function (agentA, agentB, payoffObject, populationInfo, initialAgentArray) {
+        switch (this.strategy.decisionStrategy) {
             case 'best': {
                 this.simpleSwitch(agentA, agentB, payoffObject);
                 break;
@@ -48,11 +50,20 @@ var StrategyService = /** @class */ (function () {
             }
             case 'original-wealth': {
                 // Wahrscheinlichkeit wird für jeden Agenten berechnet
-                this.originalSwitchWealth(agentA, agentB, payoffObject, populationInfo);
+                this.originalSwitchWealth(agentA, agentB, payoffObject, populationInfo, false);
                 break;
             }
+            case 'original-wealth-communication-network': {
+                // Wahrscheinlichkeit wird für jeden Agenten berechnet, mit kommunikation
+                this.originalSwitchWealth(agentA, agentB, payoffObject, populationInfo, true, initialAgentArray);
+                break;
+            }
+            default: {
+                console.log("### Wrong Decision Strategy ###");
+                return false;
+            }
         }
-        return null;
+        return true;
     };
     // der Agent mit dem niedrigeren Payoff übernimmt die Strategy des Agenten mit dem höheren
     // es kann nur einer der beiden Agenten Strategie wechseln
@@ -71,7 +82,7 @@ var StrategyService = /** @class */ (function () {
      * @param payoffs
      * @param populationInfo
      */
-    StrategyService.prototype.originalSwitchWealth = function (agentA, agentB, payoffs, populationInfo) {
+    StrategyService.prototype.originalSwitchWealth = function (agentA, agentB, payoffs, populationInfo, communication, agentsAtStartOfStep) {
         // if (payoffs.payoffA === 0 || payoffs.payoffB === 0) { return; }
         // Zur Identifizierung die Strategien speichern
         var aStrategyName = agentA.strategy.name + '';
@@ -83,6 +94,20 @@ var StrategyService = /** @class */ (function () {
         // wahrscheinlichkeit eines Strategiewechsel
         var probabilityA = wA / maxNetWealthDifference || 0;
         var probabilityB = wB / maxNetWealthDifference || 0;
+        if (communication) {
+            /**
+             * wenn Kommunikation an ist, wird die Wahrscheinlichkeit erhöht zu der Strategie zu wechseln,
+             * die von den Nachbarn am meisten gewählt wurde
+             */
+            if (this.getNeighborsMostChosenStrategies(agentA, agentsAtStartOfStep).includes(bStrategyName) && probabilityA > 0) {
+                // modify Probability of A to switch
+                probabilityA += this.communicationModifier;
+            }
+            if (this.getNeighborsMostChosenStrategies(agentB, agentsAtStartOfStep).includes(aStrategyName) && probabilityB > 0) {
+                // modify Probability of B to switch
+                probabilityB += this.communicationModifier;
+            }
+        }
         // agent a switcht zu agent b Strategy
         if (Math.random() < probabilityA) {
             agentA.strategy = this.strategies.find(function (strategy) { return strategy.name === bStrategyName; });
@@ -118,6 +143,86 @@ var StrategyService = /** @class */ (function () {
         if (Math.random() < probabilityB) {
             agentB.strategy = this.strategies.find(function (strategy) { return strategy.name === aStrategyName; });
         }
+    };
+    StrategyService.prototype.getNeighborsMostChosenStrategies = function (agent, agents) {
+        var _this = this;
+        var neighbors = [];
+        var TP = 0;
+        var UP = 0;
+        var TC = 0;
+        var UC = 0;
+        /**
+         * Wahrscheinlichkeit, dass die direkten Nachbarn ausgewertet werden.
+         * Ansonsten werden alle Nachbarn (ausser der eigene Agent) eines direkten Nachbarn ausgewertet
+         */
+        var takeDirectNeighbor = Math.random() < this.communicationPathWeight;
+        if (takeDirectNeighbor) {
+            agent.communicationNode.neighbors.forEach(function (n) {
+                if (!agents) {
+                    neighbors.push(_this.networkService.getAgentFromNodeID(n));
+                }
+                else {
+                    // agents array wurde übergeben
+                    var neighbor = agents.find(function (a) { return a.node.id === n; });
+                    neighbors.push(neighbor);
+                }
+            });
+        }
+        else {
+            // Nachbaragenten bekommen
+            var travelTo_1 = [];
+            agent.communicationNode.neighbors.forEach(function (n) {
+                travelTo_1.push(_this.networkService.getAgentFromNodeID(n));
+            });
+            // zufälligen Nachbaragenten auswählen
+            var index = Math.floor(Math.random() * travelTo_1.length);
+            // Nachbarn des gewählten Agenten in Array pushen. Ausser den eigenen.
+            travelTo_1[index].communicationNode.neighbors.forEach(function (n) {
+                // alle Nachbarn des Nachbarn ausser den eigenen Agenten auswerten
+                if (n !== agent.communicationNode.id) {
+                    if (!agents) {
+                        neighbors.push(_this.networkService.getAgentFromNodeID(n));
+                    }
+                    else {
+                        // agents array wurde übergeben
+                        var neighbor = agents.find(function (a) { return a.node.id === n; });
+                        neighbors.push(neighbor);
+                    }
+                }
+            });
+        }
+        // Strategien der Nachbarn zählen
+        neighbors.forEach(function (n) {
+            if (n.strategy.name === 'TP') {
+                TP++;
+            }
+            else if (n.strategy.name === 'UP') {
+                UP++;
+            }
+            else if (n.strategy.name === 'TC') {
+                TC++;
+            }
+            else if (n.strategy.name === 'UC') {
+                UC++;
+            }
+        });
+        // Anzahl der am meisten gewählten Strategie nehmen.
+        var max = Math.max(TP, UP, TC, UC);
+        var result = [];
+        // alle Strategien die am meisten gewählt wurden in Array pushen und zurückgeben
+        if (TP === max) {
+            result.push('TP');
+        }
+        if (UP === max) {
+            result.push('UP');
+        }
+        if (TC === max) {
+            result.push('TC');
+        }
+        if (UC === max) {
+            result.push('UC');
+        }
+        return result;
     };
     return StrategyService;
 }());

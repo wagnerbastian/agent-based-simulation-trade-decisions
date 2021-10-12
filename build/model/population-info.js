@@ -4,6 +4,8 @@ exports.PopulationInfo = void 0;
 var PopulationInfo = /** @class */ (function () {
     function PopulationInfo(trade) {
         this.wealthTotal = 0;
+        this.wealthTotalHistory = [];
+        this.totalPayoffHistory = [];
         this.maxWealthTotal = 0;
         this.minWealthTotal = 0;
         this.maxIndividualWealthTotal = 0;
@@ -20,6 +22,7 @@ var PopulationInfo = /** @class */ (function () {
         this.minIndividualWealth = Math.min.apply(Math, agents.map(function (o) { return o.wealth; }));
         this.wealthTotal = 0;
         agents.forEach(function (agent) { _this.wealthTotal += agent.wealth; });
+        this.wealthTotalHistory.push(this.wealthTotal);
         if (this.maxIndividualWealth > this.maxIndividualWealthTotal) {
             this.maxIndividualWealthTotal = this.maxIndividualWealth;
         }

@@ -62,11 +62,11 @@ export class Simulation {
 
   runSimulation(steps: number): any {
     const totalPayoffHistory: number[] = [];
+    let success = true;
+    console.log("- Starting Simulation, be patient.")
     for (let index = 0; index < steps; index++) {
-      if (index % 10 === 0 || this.pairingMethod.includes('dijkstra')) {
-        console.log("Step:", index);
-      }
-      
+      const start = new Date();
+            
       let totalPayoff = 0;
 
       // Agents kopieren um immer die Ausgangssituation zu haben
@@ -88,7 +88,12 @@ export class Simulation {
               totalPayoff += payoffObject.payoffB;
     
               // Strategiewechsel
-              this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo, agentsAtStartOfStep);
+              success = this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo, agentsAtStartOfStep);
+              if (!success) {
+                console.log("######## Exit simulation");
+                return;
+                
+              }
             }
     
           }
@@ -108,7 +113,12 @@ export class Simulation {
               totalPayoff += payoffObject.payoffB;
     
               // Strategiewechsel
-              this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo, agentsAtStartOfStep);
+              success = this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo, agentsAtStartOfStep);
+              if (!success) {
+                console.log("######## Exit simulation");
+                return;
+                
+              }
             }
     
           }
@@ -117,7 +127,8 @@ export class Simulation {
           for (let i = 0; i < this.agents.length - 1; i++) {
 
             // Agenten filtern die in diesem Step noch nicht gehandelt haben
-            const agentsToTrade: AgentPair = this.pairingService.networkPairAgentsForTrade(this.agents, true);
+            // const agentsToTrade: AgentPair = this.pairingService.networkPairAgentsForTrade(this.agents, false);
+            const agentsToTrade = this.pairingService.dijkstraPair(this.agents);
 
             // console.log(agentsToTrade);
             
@@ -131,12 +142,17 @@ export class Simulation {
               totalPayoff += payoffObject.payoffB;
     
               // Strategiewechsel
-              this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo, agentsAtStartOfStep);
+              success = this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo, agentsAtStartOfStep);
+              if (!success) {
+                console.log("######## Exit simulation");
+                return;
+                
+              }
             }
     
           }
         }
-        case 'dijkstra-tradeable': {
+        case 'network-tradeable': {
           for (let i = 0; i < this.agents.length - 1; i++) {
 
             // Agenten filtern die in diesem Step noch nicht gehandelt haben
@@ -154,7 +170,12 @@ export class Simulation {
               totalPayoff += payoffObject.payoffB;
     
               // Strategiewechsel
-              this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo, agentsAtStartOfStep);
+              success= this.strategyService.performStrategySwitchCalculation(agentsToTrade.a, agentsToTrade.b, payoffObject, this.populationInfo, agentsAtStartOfStep);
+              if (!success) {
+                console.log("######## Exit simulation");
+                return;
+                
+              }
             }
     
           }
@@ -178,6 +199,14 @@ export class Simulation {
       this.agents.forEach(agent => {
         agent.didTradeInThisStep = false;
       })
+
+      const end = new Date();
+      const duration = (end.getTime() - start.getTime()) / 1000;
+      if (index % 10 === 0) {
+        console.log("Step:", index, 'Duration:', duration);
+      } else if ((this.pairingMethod as string).includes('dijkstra') && duration > 2) {
+        console.log("Step:", index, 'Duration:', duration);
+      }
     }
     this.populationInfo.totalPayoffHistory = totalPayoffHistory;
     console.log('\nRepitions initial distribution:\n', this.strategyHistory[0]);
