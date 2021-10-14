@@ -25,6 +25,8 @@ var simulation_1 = require("./simulation/simulation");
 var data = __importStar(require("./parameters.json"));
 var logger_service_1 = require("./util/logger.service");
 var analyzer_1 = require("./simulation/analyzer");
+var graph_service_1 = require("./service/graph.service");
+var network_service_1 = require("./service/network.service");
 var parameters = (data.default);
 var fs = require("fs");
 function shuffle(a) {
@@ -43,18 +45,23 @@ for (var simulationCounter = 0; simulationCounter < parameters.simulations; simu
     var strategyService = new strategy_service_1.StrategyService();
     var strategies = strategyService.initStrategies();
     var agents = simService.initAgents(data.agents, strategies);
+    var networkService = new network_service_1.NetworkService();
+    var graphService = new graph_service_1.GraphService();
+    networkService.graphService = graphService;
     agents = shuffle(agents);
+    networkService.createNetwork(agents);
+    networkService.createCommunicationNetwork(agents);
     var simulationResults = [];
     var start = new Date().toISOString();
     // Simulationen, mehrere erstellen um damit zu arbeiten.
-    var x_1 = new simulation_1.Simulation(agents, strategyService, 1);
+    var x_1 = new simulation_1.Simulation(agents, strategyService, graphService, networkService, 1);
     simulationResults.push({
         run: 0,
         history: x_1.runSimulation(data.runs),
         populationData: x_1.populationInfo
     });
     for (var i = 1; i < data.repititions; i++) {
-        var x_2 = new simulation_1.Simulation(agents, strategyService, i);
+        var x_2 = new simulation_1.Simulation(agents, strategyService, graphService, networkService, i);
         simulationResults.push({
             run: i,
             history: x_2.runSimulation(data.runs),

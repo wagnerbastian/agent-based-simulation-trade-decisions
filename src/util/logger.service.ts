@@ -6,8 +6,6 @@ import * as data from '../parameters.json';
 export class Logger {
 
     constructor() {
-       
-
     }
 
     log(data: string, title: string): void {
@@ -36,7 +34,7 @@ export class Logger {
             fs.mkdirSync('logs');
         } catch(e) {}
         fs.writeFile("results.json", JSON.stringify(text), function(){});
-        fs.writeFile("../masterarbeit-visualisierung/src/app/results.json", JSON.stringify(text), function(){});
+        // fs.writeFile("../masterarbeit-visualisierung/src/app/results.json", JSON.stringify(text), function(){});
         
 
         if (parameters.extendedLogging) {
@@ -69,7 +67,7 @@ export class Logger {
             fs.mkdirSync('logs');
         } catch(e) {}
         fs.writeFile("run.json", JSON.stringify(text), function(){})
-        fs.writeFile("../masterarbeit-visualisierung/src/app/run.json", JSON.stringify(text), function(){})
+        // fs.writeFile("../masterarbeit-visualisierung/src/app/run.json", JSON.stringify(text), function(){})
 
         if (parameters.extendedLogging) {
             fs.writeFile(`./logs/run-${start.split(':').join('-')}.json`, JSON.stringify(text), function(){});

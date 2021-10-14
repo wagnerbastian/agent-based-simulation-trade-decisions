@@ -1,7 +1,7 @@
 {
-    "agents": 200,
+    "agents": 100,
     "runs": 5000,
-    "repititions": 3,
+    "repititions": 5,
     "simulations": 1,
     "extendedLogging": false,
     "decisionStrategy": {
@@ -14,7 +14,7 @@
         ]
     },
     "payoff": {
-        "r": 33,
+        "r": 39,
         "temp": 40,
         "s": 20,
         "x": 10

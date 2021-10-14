@@ -105,7 +105,7 @@ var PairingService = /** @class */ (function () {
         var distances = [];
         var distance = this.getMinDijkstraDistance(this.parameters.edgeWeight);
         possibleAgents.forEach(function (a) {
-            var distance = _this.networkService.getdistanceBetweenAgents(agent, a);
+            var distance = _this.graphService.getdistanceBetweenAgents(agent, a);
             distances.push({ agent: a, distance: distance });
         });
         var partner = null;
@@ -123,6 +123,7 @@ var PairingService = /** @class */ (function () {
         var moves = Math.random() > this.parameters.edgeWeight;
         // zufälligen Nachbarn aussuchen mit dem gehandelt oder weiter gegangen wird
         if (onlyTradeable) {
+            // console.log("only trade");
             return this.getTradableNeighbor(agent.node.id, agent.node.neighbors, agent.strategy.name, onlyTradeable, agents);
         }
         if (!moves) {
@@ -168,7 +169,8 @@ var PairingService = /** @class */ (function () {
                 var index = Math.floor(Math.random() * possibleNeighbors_1.length);
                 return possibleNeighbors_1[index];
             }
-            return null;
+            var availableAgents = agents.filter(function (agent) { return !agent.didTradeInThisStep; });
+            return availableAgents[Math.floor(Math.random() * availableAgents.length)];
         }
         else {
             // nur partner suchen mit denen gehandelt werden kann...
@@ -176,7 +178,7 @@ var PairingService = /** @class */ (function () {
             var distances_1 = [];
             possibleTradePartners.forEach(function (p) {
                 var agent = _this.networkService.getAgentFromNodeID(agentNodeID);
-                var distance = _this.networkService.getdistanceBetweenAgents(agent, p);
+                var distance = _this.graphService.getdistanceBetweenAgents(agent, p);
                 distances_1.push({ distance: distance, agent: p });
             });
             var partner_1 = distances_1[0];
