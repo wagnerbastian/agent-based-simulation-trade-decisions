@@ -38,6 +38,7 @@ export class Logger {
         
 
         if (parameters.extendedLogging) {
+            console.log("extended")
             fs.writeFile(`./logs/results-${start.split(':').join('-')}.json`, JSON.stringify(text), function(){});
         }
 

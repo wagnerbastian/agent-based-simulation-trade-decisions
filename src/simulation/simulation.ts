@@ -69,6 +69,13 @@ export class Simulation {
     let success = true;
     console.log("- Starting Simulation " + this.repitition + ", be patient.")
     for (let index = 0; index < steps; index++) {
+      
+
+      if (index % 100 === 0) {
+        process.stdout.write(`${index}`);
+      } else if (index % 10 === 0) {
+        process.stdout.write(`.`);
+      }
 
       const start = new Date();
             

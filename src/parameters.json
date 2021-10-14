@@ -3,7 +3,7 @@
     "runs": 5000,
     "repititions": 25,
     "simulations": 1,
-    "extendedLogging": false,
+    "extendedLogging": true,
     "decisionStrategy" : {
         "decisionStrategy": "original-wealth-communication-network",
         "distribution": [
@@ -24,7 +24,7 @@
     },
     "maxNeighbors": 10,
     "minNeighbors": 3,
-    "edgeWeight": 0.2,
+    "edgeWeight": 0.8,
     "pairingMethod": "network",
     "edgeWeightCommunication": 0.8,
     "communicationModifier": 0.1,

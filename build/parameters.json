@@ -1,9 +1,9 @@
 {
-    "agents": 100,
+    "agents": 1250,
     "runs": 5000,
-    "repititions": 5,
+    "repititions": 25,
     "simulations": 1,
-    "extendedLogging": false,
+    "extendedLogging": true,
     "decisionStrategy": {
         "decisionStrategy": "original-wealth-communication-network",
         "distribution": [
