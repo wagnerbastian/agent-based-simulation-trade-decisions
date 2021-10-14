@@ -1,7 +1,7 @@
 {
-    "agents": 500,
-    "runs": 500,
-    "repititions": 20,
+    "agents": 1250,
+    "runs": 5000,
+    "repititions": 25,
     "simulations": 1,
     "extendedLogging": false,
     "decisionStrategy" : {
@@ -24,7 +24,7 @@
     },
     "maxNeighbors": 10,
     "minNeighbors": 3,
-    "edgeWeight": 0.8,
+    "edgeWeight": 0.2,
     "pairingMethod": "network",
     "edgeWeightCommunication": 0.8,
     "communicationModifier": 0.1,

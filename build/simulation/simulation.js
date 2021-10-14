@@ -24,29 +24,31 @@ var population_info_1 = require("../model/population-info");
 var trade_1 = require("../model/trade");
 var parameters = __importStar(require("../parameters.json"));
 var pairing_service_1 = require("../service/pairing.service");
-var network_service_1 = require("../service/network.service");
 var logger_service_1 = require("../util/logger.service");
 var Simulation = /** @class */ (function () {
-    function Simulation(agents, strategyService, repitition) {
+    function Simulation(agents, strategyService, graphService, networkService, repitition) {
         this.strategyService = strategyService;
+        this.networkService = networkService;
         this.repitition = repitition;
         this.strategyHistory = [];
-        this.networkService = new network_service_1.NetworkService();
         this.logger = new logger_service_1.Logger();
         this.parameters = (parameters.default).payoff;
         this.pairingMethod = parameters.default.pairingMethod;
         this.data = (parameters.default);
+        this.strategyService.networkService = this.networkService;
         this.pairingService = new pairing_service_1.PairingService();
         this.strategies = this.strategyService.initStrategies();
+        this.graphService = graphService;
+        this.pairingService.graphService = this.graphService;
         // copy Agents damit jede Simulation die gleichen hat
         this.agents = JSON.parse(JSON.stringify(agents));
         console.log(this.agents.length, " Agents copied");
         this.trade = new trade_1.Trade(this.parameters.r, this.parameters.temp, this.parameters.s, this.parameters.x);
         this.populationInfo = new population_info_1.PopulationInfo(this.trade);
         // Netzwerk wird gebaut und Nachbarn zugewiesen
-        this.networkService.createNetwork(this.agents);
+        // this.networkService.createNetwork(this.agents);
         // Kommunikationsnetzwerk wird gebaut und Nachbarn zugewiesen
-        this.networkService.createCommunicationNetwork(this.agents);
+        // this.networkService.createCommunicationNetwork(this.agents);
         // Pairingservice kriegt NetzwerkInfo übergeben
         this.pairingService.networkService = this.networkService;
         this.strategyService.networkService = this.networkService;
@@ -80,6 +82,7 @@ var Simulation = /** @class */ (function () {
                             }
                         }
                     }
+                    break;
                 }
                 case 'network': {
                     for (var i = 0; i < this.agents.length - 1; i++) {
@@ -99,6 +102,7 @@ var Simulation = /** @class */ (function () {
                             }
                         }
                     }
+                    break;
                 }
                 case 'dijkstra': {
                     for (var i = 0; i < this.agents.length - 1; i++) {
@@ -120,6 +124,7 @@ var Simulation = /** @class */ (function () {
                             }
                         }
                     }
+                    break;
                 }
                 case 'network-tradeable': {
                     for (var i = 0; i < this.agents.length - 1; i++) {
@@ -140,6 +145,7 @@ var Simulation = /** @class */ (function () {
                             }
                         }
                     }
+                    break;
                 }
             }
             totalPayoffHistory.push(totalPayoff);
@@ -156,7 +162,7 @@ var Simulation = /** @class */ (function () {
             var end = new Date();
             var duration = (end.getTime() - start.getTime()) / 1000;
             if (index % 10 === 0) {
-                console.log("Rep: " + this.repitition + " Step:", index, 'Duration:', duration);
+                // console.log("Rep: " + this.repitition + " Step:", index, 'Duration:', duration);
             }
             else if (this.pairingMethod.includes('dijkstra') && duration > 2) {
                 console.log("Rep: " + this.repitition + " Step:", index, 'Duration:', duration);

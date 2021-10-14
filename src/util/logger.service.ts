@@ -6,8 +6,6 @@ import * as data from '../parameters.json';
 export class Logger {
 
     constructor() {
-       
-
     }
 
     log(data: string, title: string): void {
