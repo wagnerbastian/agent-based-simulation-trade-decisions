@@ -156,7 +156,7 @@ var Simulation = /** @class */ (function () {
             }
             totalPayoffHistory.push(totalPayoff);
             var strategyDis = this.countStrategies(this.agents);
-            if (index % 10 === 0) {
+            if (index % 50 === 0) {
                 console.log(strategyDis);
             }
             // Verlauf der Strategies anlegen:

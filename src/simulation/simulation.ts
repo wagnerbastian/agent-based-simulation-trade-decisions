@@ -202,7 +202,7 @@ export class Simulation {
       totalPayoffHistory.push(totalPayoff);
       const strategyDis = this.countStrategies(this.agents);
 
-      if (index % 10 === 0) {
+      if (index % 50 === 0) {
         console.log(strategyDis);
       }
       
