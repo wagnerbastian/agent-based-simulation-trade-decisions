@@ -18,6 +18,7 @@
   "dependencies": {
     "@pm2/io": "^5.0.0",
     "fs": "0.0.1-security",
-    "ngx-echarts": "^7.0.2"
+    "ngx-echarts": "^7.0.2",
+    "pm2-metrics": "^1.0.43"
   }
 }

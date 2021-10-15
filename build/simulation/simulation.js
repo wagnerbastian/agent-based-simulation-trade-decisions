@@ -25,19 +25,6 @@ var trade_1 = require("../model/trade");
 var parameters = __importStar(require("../parameters.json"));
 var pairing_service_1 = require("../service/pairing.service");
 var logger_service_1 = require("../util/logger.service");
-var io = require('@pm2/io');
-var tcMetric = io.metric({
-    name: 'TC',
-});
-var tpMetric = io.metric({
-    name: 'TP',
-});
-var upMetric = io.metric({
-    name: 'UP',
-});
-var ucMetric = io.metric({
-    name: 'UC',
-});
 var Simulation = /** @class */ (function () {
     function Simulation(agents, strategyService, graphService, networkService, repitition) {
         this.strategyService = strategyService;
@@ -169,10 +156,9 @@ var Simulation = /** @class */ (function () {
             }
             totalPayoffHistory.push(totalPayoff);
             var strategyDis = this.countStrategies(this.agents);
-            tcMetric.set(strategyDis.TC);
-            tpMetric.set(strategyDis.TP);
-            ucMetric.set(strategyDis.UC);
-            upMetric.set(strategyDis.UP);
+            if (index % 10 === 0) {
+                console.log(strategyDis);
+            }
             // Verlauf der Strategies anlegen:
             this.strategyHistory.push(strategyDis);
             // Population Info updaten
