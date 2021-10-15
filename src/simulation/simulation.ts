@@ -19,6 +19,24 @@ import { NetworkService } from "../service/network.service";
 import { Logger } from "../util/logger.service";
 import { GraphService } from "../service/graph.service";
 
+const io = require('@pm2/io');
+
+const tcMetric = io.metric({
+  name: 'TC',
+})
+
+const tpMetric = io.metric({
+  name: 'TP',
+})
+
+const upMetric = io.metric({
+  name: 'UP',
+})
+
+const ucMetric = io.metric({
+  name: 'UC',
+})
+
 export class Simulation {
   agents: Agent[];
   strategies: Strategy[];
@@ -200,9 +218,15 @@ export class Simulation {
       }
 
       totalPayoffHistory.push(totalPayoff);
+      const strategyDis = this.countStrategies(this.agents);
+
+      tcMetric.set(strategyDis.TC);
+      tpMetric.set(strategyDis.TP);
+      ucMetric.set(strategyDis.UC);
+      upMetric.set(strategyDis.UP);
 
       // Verlauf der Strategies anlegen:
-      this.strategyHistory.push(this.countStrategies(this.agents));
+      this.strategyHistory.push(strategyDis);
       
 
       // Population Info updaten

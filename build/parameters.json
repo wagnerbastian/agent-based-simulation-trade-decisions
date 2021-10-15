@@ -24,7 +24,7 @@
     },
     "maxNeighbors": 10,
     "minNeighbors": 3,
-    "edgeWeight": 0.8,
+    "edgeWeight": 0.4,
     "pairingMethod": "network",
     "edgeWeightCommunication": 0.8,
     "communicationModifier": 0.1,

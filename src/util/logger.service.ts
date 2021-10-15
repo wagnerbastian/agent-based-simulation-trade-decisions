@@ -27,7 +27,8 @@ export class Logger {
             runs: data.repititions,
             strategy: data.decisionStrategy.decisionStrategy,
             pairingMethod: data.pairingMethod,
-            results: simulationResults
+            results: simulationResults,
+            parameters
         }
 
         try {
@@ -61,7 +62,8 @@ export class Logger {
             strategy: data.decisionStrategy.decisionStrategy,
             pairingMethod: data.pairingMethod,
             populationInfo,
-            results
+            results,
+            parameters
         }
 
         try {

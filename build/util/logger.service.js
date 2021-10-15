@@ -43,7 +43,8 @@ var Logger = /** @class */ (function () {
             runs: data.repititions,
             strategy: data.decisionStrategy.decisionStrategy,
             pairingMethod: data.pairingMethod,
-            results: simulationResults
+            results: simulationResults,
+            parameters: parameters
         };
         try {
             fs.mkdirSync('logs');
@@ -72,7 +73,8 @@ var Logger = /** @class */ (function () {
             strategy: data.decisionStrategy.decisionStrategy,
             pairingMethod: data.pairingMethod,
             populationInfo: populationInfo,
-            results: results
+            results: results,
+            parameters: parameters
         };
         try {
             fs.mkdirSync('logs');
