@@ -5,7 +5,7 @@
     "simulations": 1,
     "extendedLogging": true,
     "decisionStrategy": {
-        "decisionStrategy": "original-wealth",
+        "decisionStrategy": "original-wealth-communication-network",
         "distribution": [
             0.25,
             0.5,
@@ -25,9 +25,9 @@
     "maxNeighbors": 10,
     "minNeighbors": 3,
     "edgeWeight": 0.8,
-    "pairingMethod": "network",
+    "pairingMethod": "simple",
     "edgeWeightCommunication": 0.8,
     "communicationModifier": 0.1,
-    "maxCommunicationNeighbors": 20,
+    "maxCommunicationNeighbors": 60,
     "shuffleAgents": true
 }
