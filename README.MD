@@ -17,7 +17,7 @@
 17. [x] simple 0.8 (10-17), 60
 
 
-18. [ ] simple 0.8 (3-10), no com
-19. [ ] simple 0.8 (10-17), no com
-20. [ ] simple 0.4 (3-10), no com
+18. [x] simple 0.8 (3-10), no com
+19. [x] simple 0.8 (10-17), no com
+20. [x] simple 0.4 (3-10), no com
 21. [ ] simple 0.4 (10-17), no com
