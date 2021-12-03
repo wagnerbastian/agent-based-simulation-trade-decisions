@@ -21,3 +21,11 @@
 19. [x] simple 0.8 (10-17), no com - invalid
 20. [x] simple 0.4 (3-10), no com - invalid
 21. [ ] simple 0.4 (10-17), no com - invalid
+
+
+Neu:
+22. [] Network 0.8 (3,10), Communication (0.1, 60), Provider 90% (Sim01)
+23. [] Network 0.8 (3,10), Communication (0.1, 60), Untrustworthy 90% (Sim02)
+23. [] Network 0.8 (3,10), Communication (0.1, 60), Trustworthy 90% (Sim03)
+
+23. [] Network 0.8 (3,10), Communication (0.1, 60), consumer 90% ()
