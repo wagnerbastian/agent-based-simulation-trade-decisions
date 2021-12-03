@@ -20,7 +20,7 @@
 18. [x] simple 0.8 (3-10), no com 
 19. [x] simple 0.8 (10-17), no com - invalid
 20. [x] simple 0.4 (3-10), no com - invalid
-21. [ ] simple 0.4 (10-17), no com - invalid
+21. [x] simple 0.4 (10-17), no com - invalid
 
 
 Neu:
