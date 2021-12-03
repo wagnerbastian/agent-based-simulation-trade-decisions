@@ -12,12 +12,12 @@
 12. [x] Network 0.8 (10, 17), no Communication
 13. [x] simple 0.8 (3-10), 20
 14. [x] simple 0.8 (3-10), 60
-15. [x] simple 0.4 (3-10), 60
-16. [x] simple 0.4 (10-17), 60
-17. [x] simple 0.8 (10-17), 60
+15. [x] simple 0.4 (3-10), 60 - invalid
+16. [x] simple 0.4 (10-17), 60 - invalid
+17. [x] simple 0.8 (10-17), 60 - invalid 
 
 
-18. [x] simple 0.8 (3-10), no com
-19. [x] simple 0.8 (10-17), no com
-20. [x] simple 0.4 (3-10), no com
-21. [ ] simple 0.4 (10-17), no com
+18. [x] simple 0.8 (3-10), no com 
+19. [x] simple 0.8 (10-17), no com - invalid
+20. [x] simple 0.4 (3-10), no com - invalid
+21. [ ] simple 0.4 (10-17), no com - invalid
