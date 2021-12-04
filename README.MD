@@ -24,7 +24,7 @@
 32. [ ] Network 0.8 (3,10), Communication (0.1, 60), Trustworthy 90% ()
 33. [ ] Network 0.8 (3,10), Communication (0.1, 60), consumer 90% ()
 
-
+# Ungültige durchläufe weil sinnlose parameter vergeben wurden...
 
 20. [x] simple 0.8 (10-17), no com - invalid
 21. [x] simple 0.4 (3-10), no com - invalid
