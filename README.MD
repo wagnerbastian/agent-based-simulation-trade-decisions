@@ -7,22 +7,22 @@
 7. [x] Network 0.8 (10, 17), Communication (0.1, 60) - saved - ID: 7
 8. [x] Network 0.4 (10, 17), Communication (0.1, 60) - saved - ID: 8
 9. [x] Network 0.8 (3, 10), no Communication - saved - ID: 9
-11. [x] Network 0.4 (3, 10), no Communication - saved - ID: 10
-12. [x] Network 0.4 (10, 17), no Communication - saved - ID: 12
-13. [x] Network 0.8 (10, 17), no Communication - saved - ID: 11
+10. [x] Network 0.4 (3, 10), no Communication - saved - ID: 10
+11. [x] Network 0.4 (10, 17), no Communication - saved - ID: 11
+13. [x] Network 0.8 (10, 17), no Communication - saved - ID: 12
 14. [x] simple, 20 - saved - ID: 12
 15. [x] simple, 60 - saved - ID: 13
-18. [x] simple, no com - ID: 14
+16. [x] simple, no com - ID: 14
 
-26. [ ] Network 0.8 (3,10), no Communication, Provider 90% (Sim01)
-27. [ ] Network 0.8 (3,10), no Communication, Untrustworthy 90% (Sim02)
-28. [ ] Network 0.8 (3,10), no Communication, Trustworthy 90% (Sim03)
-29. [ ] Network 0.8 (3,10), no Communication, consumer 90% (Sim05)
+26. [x] Network 0.8 (3,10), no Communication, Provider 90%
+27. [x] Network 0.8 (3,10), no Communication, Untrustworthy 90% 
+28. [x] Network 0.8 (3,10), no Communication, Trustworthy 90% 
+29. [x] Network 0.8 (3,10), no Communication, consumer 90% 
 
-30. [ ] Network 0.8 (3,10), Communication (0.1, 60), Provider 90% ()
-31. [ ] Network 0.8 (3,10), Communication (0.1, 60), Untrustworthy 90% ()
-32. [ ] Network 0.8 (3,10), Communication (0.1, 60), Trustworthy 90% ()
-33. [ ] Network 0.8 (3,10), Communication (0.1, 60), consumer 90% ()
+30. [ ] Network 0.8 (3,10), Communication (0.1, 60), Provider 90% (1)
+31. [ ] Network 0.8 (3,10), Communication (0.1, 60), Untrustworthy 90% (2)
+32. [ ] Network 0.8 (3,10), Communication (0.1, 60), Trustworthy 90% (3)
+33. [ ] Network 0.8 (3,10), Communication (0.1, 60), Consumer 90% (5)
 
 # Ungültige durchläufe weil sinnlose parameter vergeben wurden...
 
