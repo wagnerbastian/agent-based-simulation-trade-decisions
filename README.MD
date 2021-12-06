@@ -9,16 +9,14 @@
 9. [x] Network 0.8 (3, 10), no Communication - saved - ID: 9
 10. [x] Network 0.4 (3, 10), no Communication - saved - ID: 10
 11. [x] Network 0.4 (10, 17), no Communication - saved - ID: 11
-13. [x] Network 0.8 (10, 17), no Communication - saved - ID: 12
+13. [x] Network 0.8 (10, 17), no Communication - saved - ID: 39
 14. [x] simple, 20 - saved - ID: 12
 15. [x] simple, 60 - saved - ID: 13
 16. [x] simple, no com - ID: 14
-
 26. [x] Network 0.8 (3,10), no Communication, Provider 90%
 27. [x] Network 0.8 (3,10), no Communication, Untrustworthy 90% 
 28. [x] Network 0.8 (3,10), no Communication, Trustworthy 90% 
 29. [x] Network 0.8 (3,10), no Communication, consumer 90% 
-
 30. [ ] Network 0.8 (3,10), Communication (0.1, 60), Provider 90% (1)
 31. [ ] Network 0.8 (3,10), Communication (0.1, 60), Untrustworthy 90% (2)
 32. [ ] Network 0.8 (3,10), Communication (0.1, 60), Trustworthy 90% (3)
